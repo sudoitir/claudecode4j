@@ -1,0 +1,105 @@
+name: Integration Tests
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  integration-tests:
+    name: Integration Tests with Testcontainers
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    services:
+      docker:
+        image: docker:dind
+        options: --privileged
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          java-version: '25-ea'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Build project
+        run: mvn clean install -DskipTests -B -V
+
+      - name: Run Integration Tests
+        run: mvn verify -Pintegration-tests -B -Dgpg.skip=true
+        env:
+          TESTCONTAINERS_RYUK_DISABLED: false
+
+      - name: Upload Integration Test Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: integration-test-results
+          path: '**/target/failsafe-reports/*.xml'
+          retention-days: 7
+
+  kafka-tests:
+    name: Kafka Integration Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          java-version: '25-ea'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Build project
+        run: mvn clean install -DskipTests -B -V
+
+      - name: Run Kafka Module Tests
+        run: mvn test -pl claudecode4j-kafka-adapter -B --fail-at-end
+        env:
+          TESTCONTAINERS_RYUK_DISABLED: false
+
+      - name: Upload Kafka Test Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: kafka-test-results
+          path: 'claudecode4j-kafka-adapter/target/surefire-reports/*.xml'
+          retention-days: 7

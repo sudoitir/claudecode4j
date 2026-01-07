@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions & Discussions
+    url: https://github.com/sudoit/ClaudeCode4J/discussions
+    about: Ask questions and discuss ClaudeCode4J
+  - name: Security Vulnerabilities
+    url: https://github.com/sudoit/ClaudeCode4J/security/advisories/new
+    about: Report security vulnerabilities privately

@@ -1,0 +1,17 @@
+# Default code owners for everything in the repo
+* @sudoit
+
+# Core API and implementation
+/claudecode4j-api/ @sudoit
+/claudecode4j-core/ @sudoit
+
+# Spring Boot integration
+/claudecode4j-spring-boot-starter/ @sudoit
+/claudecode4j-rest-adapter/ @sudoit
+
+# Kafka integration
+/claudecode4j-kafka-adapter/ @sudoit
+
+# Build configuration
+/pom.xml @sudoit
+/.github/ @sudoit
