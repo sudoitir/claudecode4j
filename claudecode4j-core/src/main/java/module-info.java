@@ -1,5 +1,6 @@
 module ir.sudoit.claudecode4j.core {
     uses ir.sudoit.claudecode4j.api.spi.BinaryResolver;
+
     requires ir.sudoit.claudecode4j.api;
     requires static org.jspecify;
 

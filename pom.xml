@@ -14,6 +14,9 @@
     <module>claudecode4j-bom</module>
     <module>claudecode4j-api</module>
     <module>claudecode4j-core</module>
+    <module>claudecode4j-spring-boot-starter</module>
+    <module>claudecode4j-rest-adapter</module>
+    <module>claudecode4j-kafka-adapter</module>
   </modules>
 
   <properties>
@@ -25,7 +28,10 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <jspecify.version>1.0.0</jspecify.version>
+    <spring-boot.version>4.0.1</spring-boot.version>
+    <testcontainers.version>1.20.4</testcontainers.version>
     <flatten-maven-plugin.version>1.6.0</flatten-maven-plugin.version>
+    <maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
     <maven-gpg-plugin.version>3.2.4</maven-gpg-plugin.version>
     <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
     <spotless.version>3.1.0</spotless.version>
@@ -33,6 +39,14 @@
 
   <dependencyManagement>
     <dependencies>
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-dependencies</artifactId>
+        <version>${spring-boot.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+
       <dependency>
         <groupId>org.jspecify</groupId>
         <artifactId>jspecify</artifactId>
@@ -48,6 +62,29 @@
         <groupId>ir.sudoit</groupId>
         <artifactId>claudecode4j-core</artifactId>
         <version>${revision}</version>
+      </dependency>
+      <dependency>
+        <groupId>ir.sudoit</groupId>
+        <artifactId>claudecode4j-spring-boot-starter</artifactId>
+        <version>${revision}</version>
+      </dependency>
+      <dependency>
+        <groupId>ir.sudoit</groupId>
+        <artifactId>claudecode4j-rest-adapter</artifactId>
+        <version>${revision}</version>
+      </dependency>
+      <dependency>
+        <groupId>ir.sudoit</groupId>
+        <artifactId>claudecode4j-kafka-adapter</artifactId>
+        <version>${revision}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.testcontainers</groupId>
+        <artifactId>testcontainers-bom</artifactId>
+        <version>${testcontainers.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -102,6 +139,14 @@
               <phase>verify</phase>
             </execution>
           </executions>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>${maven-surefire-plugin.version}</version>
+          <configuration>
+            <argLine>--enable-preview</argLine>
+          </configuration>
         </plugin>
       </plugins>
     </pluginManagement>

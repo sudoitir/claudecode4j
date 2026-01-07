@@ -27,6 +27,21 @@
         <artifactId>claudecode4j-core</artifactId>
         <version>${revision}</version>
       </dependency>
+      <dependency>
+        <groupId>ir.sudoit</groupId>
+        <artifactId>claudecode4j-spring-boot-starter</artifactId>
+        <version>${revision}</version>
+      </dependency>
+      <dependency>
+        <groupId>ir.sudoit</groupId>
+        <artifactId>claudecode4j-rest-adapter</artifactId>
+        <version>${revision}</version>
+      </dependency>
+      <dependency>
+        <groupId>ir.sudoit</groupId>
+        <artifactId>claudecode4j-kafka-adapter</artifactId>
+        <version>${revision}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 

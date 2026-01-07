@@ -1,0 +1,2 @@
+ir.sudoit.claudecode4j.core.resolver.NpmBinaryResolver
+ir.sudoit.claudecode4j.core.resolver.PathBinaryResolver
