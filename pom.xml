@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>ir.sudoit</groupId>
+  <artifactId>claudecode4j-parent</artifactId>
+  <version>${revision}</version>
+  <packaging>pom</packaging>
+
+  <name>ClaudeCode4J Parent</name>
+  <description>Java wrapper and integrator for Claude CLI</description>
+
+  <modules>
+    <module>claudecode4j-bom</module>
+    <module>claudecode4j-api</module>
+    <module>claudecode4j-core</module>
+  </modules>
+
+  <properties>
+    <revision>1.0.0-SNAPSHOT</revision>
+    <java.version>25</java.version>
+    <maven.compiler.source>${java.version}</maven.compiler.source>
+    <maven.compiler.target>${java.version}</maven.compiler.target>
+    <maven.compiler.release>${java.version}</maven.compiler.release>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+    <jspecify.version>1.0.0</jspecify.version>
+    <flatten-maven-plugin.version>1.6.0</flatten-maven-plugin.version>
+    <maven-gpg-plugin.version>3.2.4</maven-gpg-plugin.version>
+    <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
+    <spotless.version>3.1.0</spotless.version>
+  </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.jspecify</groupId>
+        <artifactId>jspecify</artifactId>
+        <version>${jspecify.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>ir.sudoit</groupId>
+        <artifactId>claudecode4j-api</artifactId>
+        <version>${revision}</version>
+      </dependency>
+      <dependency>
+        <groupId>ir.sudoit</groupId>
+        <artifactId>claudecode4j-core</artifactId>
+        <version>${revision}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>${maven-compiler-plugin.version}</version>
+          <configuration>
+            <release>${java.version}</release>
+            <compilerArgs>--enable-preview</compilerArgs>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>flatten-maven-plugin</artifactId>
+          <version>${flatten-maven-plugin.version}</version>
+          <configuration>
+            <updatePomFile>true</updatePomFile>
+            <flattenMode>resolveCiFriendliesOnly</flattenMode>
+          </configuration>
+          <executions>
+            <execution>
+              <id>flatten</id>
+              <goals>
+                <goal>flatten</goal>
+              </goals>
+              <phase>process-resources</phase>
+            </execution>
+            <execution>
+              <id>flatten.clean</id>
+              <goals>
+                <goal>clean</goal>
+              </goals>
+              <phase>clean</phase>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-gpg-plugin</artifactId>
+          <version>${maven-gpg-plugin.version}</version>
+          <executions>
+            <execution>
+              <id>sign-artifacts</id>
+              <goals>
+                <goal>sign</goal>
+              </goals>
+              <phase>verify</phase>
+            </execution>
+          </executions>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>flatten-maven-plugin</artifactId>
+      </plugin>
+
+      <plugin>
+        <groupId>com.diffplug.spotless</groupId>
+        <artifactId>spotless-maven-plugin</artifactId>
+        <version>${spotless.version}</version>
+        <configuration>
+          <!--                    <ratchetFrom>origin/main</ratchetFrom>-->
+
+          <pom>
+            <includes>
+              <include>pom.xml</include>
+            </includes>
+            <sortPom>
+              <encoding>UTF-8</encoding>
+              <expandEmptyElements>true</expandEmptyElements>
+              <spaceBeforeCloseEmptyElement>false</spaceBeforeCloseEmptyElement>
+              <keepBlankLines>true</keepBlankLines>
+              <endWithNewline>true</endWithNewline>
+              <predefinedSortOrder>recommended_2008_06</predefinedSortOrder>
+            </sortPom>
+          </pom>
+
+          <markdown>
+            <includes>
+              <include>**/*.md</include>
+            </includes>
+            <flexmark>
+              <emulationProfile>COMMONMARK</emulationProfile>
+              <pegdownExtensions>ALL,TOC</pegdownExtensions>
+              <extensions>YamlFrontMatter,Emoji</extensions>
+            </flexmark>
+          </markdown>
+
+          <formats>
+            <format>
+              <includes>
+                <include>.gitignore</include>
+              </includes>
+              <trimTrailingWhitespace></trimTrailingWhitespace>
+              <endWithNewline></endWithNewline>
+              <indent>
+                <tabs>true</tabs>
+                <spacesPerTab>4</spacesPerTab>
+              </indent>
+            </format>
+          </formats>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-gpg-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
+
+  <profiles>
+    <profile>
+      <id>spotless-java</id>
+      <activation>
+        <file>
+          <exists>src/main/java</exists>
+        </file>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.diffplug.spotless</groupId>
+            <artifactId>spotless-maven-plugin</artifactId>
+            <configuration>
+              <cleanthat>
+                <version>2.8</version>
+                <sourceJdk>${maven.compiler.source}</sourceJdk>
+                <mutators>
+                  <mutator>SafeAndConsensual</mutator>
+                  <mutator>LiteralsFirstInComparisons</mutator>
+                </mutators>
+                <excludedMutators>
+                  <excludedMutator>OptionalNotEmpty</excludedMutator>
+                </excludedMutators>
+                <includeDraft>false</includeDraft>
+              </cleanthat>
+              <java>
+                <includes>
+                  <include>src/main/java/**/*.java</include>
+                  <include>src/test/java/**/*.java</include>
+                </includes>
+                <importOrder>
+                  <wildcardsLast>false</wildcardsLast>
+                  <semanticSort>true</semanticSort>
+                </importOrder>
+                <removeUnusedImports></removeUnusedImports>
+                <forbidWildcardImports></forbidWildcardImports>
+                <forbidModuleImports></forbidModuleImports>
+                <formatAnnotations></formatAnnotations>
+                <palantirJavaFormat>
+                  <version>2.83.0</version>
+                  <style>PALANTIR</style>
+                  <formatJavadoc>true</formatJavadoc>
+                </palantirJavaFormat>
+                <licenseHeader>
+                  <file>${maven.multiModuleProjectDirectory}/license-header</file>
+                </licenseHeader>
+              </java>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+</project>
