@@ -28,8 +28,23 @@ import ir.sudoit.claudecode4j.api.model.request.PromptOptions;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import org.jspecify.annotations.Nullable;
 
 public final class ClaudeCommandBuilder {
+
+    /**
+     * Represents a CLI command with optional stdin input.
+     *
+     * <p>Used to pass the prompt via stdin instead of command-line arguments, avoiding OS command length limits and
+     * potential escaping issues.
+     *
+     * @param command the CLI arguments
+     * @param stdinInput the prompt text to send via stdin, or null if using positional arg
+     */
+    public record CommandWithStdin(
+            List<String> command, @Nullable String stdinInput) {}
+
+    private static final System.Logger log = System.getLogger(ClaudeCommandBuilder.class.getName());
 
     private final Path binaryPath;
     private Prompt prompt;
@@ -52,8 +67,18 @@ public final class ClaudeCommandBuilder {
     public List<String> build() {
         var command = new ArrayList<String>();
         command.add(binaryPath.toString());
+        log.log(System.Logger.Level.DEBUG, "Building command, binaryPath={0}", binaryPath);
 
         if (options != null) {
+            log.log(
+                    System.Logger.Level.DEBUG,
+                    "Options: printMode={0}, dangerouslySkipPermissions={1}, outputFormat={2}, model={3}, maxTurns={4}",
+                    options.printMode(),
+                    options.dangerouslySkipPermissions(),
+                    options.outputFormat(),
+                    options.model(),
+                    options.maxTurns());
+
             if (options.printMode()) {
                 command.add("--print");
             }
@@ -72,9 +97,19 @@ public final class ClaudeCommandBuilder {
                 command.add(options.model());
             }
 
-            if (options.maxTokens() != null) {
+            if (options.maxTurns() != null) {
                 command.add("--max-turns");
-                command.add(options.maxTokens().toString());
+                command.add(options.maxTurns().toString());
+            }
+
+            // Tool filtering options
+            for (var tool : options.allowedTools()) {
+                command.add("--allowedTools");
+                command.add(tool);
+            }
+            for (var tool : options.disallowedTools()) {
+                command.add("--disallowedTools");
+                command.add(tool);
             }
         }
 
@@ -98,6 +133,95 @@ public final class ClaudeCommandBuilder {
             command.add(prompt.text());
         }
 
+        log.log(System.Logger.Level.DEBUG, "Final command: {0}", String.join(" ", command));
         return List.copyOf(command);
+    }
+
+    /**
+     * Builds the command with prompt passed via stdin.
+     *
+     * <p>This method passes the prompt text via stdin instead of as a positional argument, avoiding OS command length
+     * limits (ARG_MAX) and potential shell escaping issues.
+     *
+     * @return a record containing the command and the stdin input
+     */
+    public CommandWithStdin buildWithStdin() {
+        var command = new ArrayList<String>();
+        command.add(binaryPath.toString());
+        log.log(System.Logger.Level.DEBUG, "Building command with stdin, binaryPath={0}", binaryPath);
+
+        if (options != null) {
+            log.log(
+                    System.Logger.Level.DEBUG,
+                    "Options: printMode={0}, dangerouslySkipPermissions={1}, outputFormat={2}, model={3}, maxTurns={4}",
+                    options.printMode(),
+                    options.dangerouslySkipPermissions(),
+                    options.outputFormat(),
+                    options.model(),
+                    options.maxTurns());
+
+            if (options.printMode()) {
+                command.add("--print");
+            }
+
+            if (options.dangerouslySkipPermissions()) {
+                command.add("--dangerously-skip-permissions");
+            }
+
+            if (options.outputFormat() != null) {
+                command.add("--output-format");
+                command.add(options.outputFormat().cliValue());
+            }
+
+            if (options.model() != null) {
+                command.add("--model");
+                command.add(options.model());
+            }
+
+            if (options.maxTurns() != null) {
+                command.add("--max-turns");
+                command.add(options.maxTurns().toString());
+            }
+
+            // Tool filtering options
+            for (var tool : options.allowedTools()) {
+                command.add("--allowedTools");
+                command.add(tool);
+            }
+            for (var tool : options.disallowedTools()) {
+                command.add("--disallowedTools");
+                command.add(tool);
+            }
+        }
+
+        String stdinInput = null;
+        if (prompt != null) {
+            if (prompt.agentName() != null) {
+                command.add("--agent");
+                command.add(prompt.agentName());
+            }
+
+            if (prompt.systemPrompt() != null) {
+                command.add("--system-prompt");
+                command.add(prompt.systemPrompt());
+            }
+
+            for (var contextFile : prompt.contextFiles()) {
+                command.add("--add-dir");
+                command.add(contextFile.toString());
+            }
+
+            // Pass prompt via stdin using "-" to read from stdin
+            command.add("-p");
+            command.add("-");
+            stdinInput = prompt.text();
+        }
+
+        log.log(
+                System.Logger.Level.DEBUG,
+                "Final command (stdin mode): {0}, stdinLength={1}",
+                String.join(" ", command),
+                stdinInput != null ? stdinInput.length() : 0);
+        return new CommandWithStdin(List.copyOf(command), stdinInput);
     }
 }

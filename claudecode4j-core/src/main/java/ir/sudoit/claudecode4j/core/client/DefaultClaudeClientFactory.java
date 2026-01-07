@@ -31,7 +31,7 @@ import ir.sudoit.claudecode4j.api.spi.BinaryResolver;
 import ir.sudoit.claudecode4j.api.spi.InputSanitizer;
 import ir.sudoit.claudecode4j.api.spi.OutputParser;
 import ir.sudoit.claudecode4j.api.spi.ProcessExecutor;
-import ir.sudoit.claudecode4j.core.parser.StreamJsonParser;
+import ir.sudoit.claudecode4j.core.parser.JacksonStreamParser;
 import ir.sudoit.claudecode4j.core.process.VirtualThreadExecutor;
 import ir.sudoit.claudecode4j.core.resolver.CompositeBinaryResolver;
 import ir.sudoit.claudecode4j.core.security.DefaultInputSanitizer;
@@ -97,7 +97,7 @@ public final class DefaultClaudeClientFactory implements ClaudeClientFactory {
     }
 
     private OutputParser loadParser() {
-        return ServiceLoader.load(OutputParser.class).findFirst().orElseGet(StreamJsonParser::new);
+        return ServiceLoader.load(OutputParser.class).findFirst().orElseGet(JacksonStreamParser::new);
     }
 
     private ProcessExecutor loadExecutor() {

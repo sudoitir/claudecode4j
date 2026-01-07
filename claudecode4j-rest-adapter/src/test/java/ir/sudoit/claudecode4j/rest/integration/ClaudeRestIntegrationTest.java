@@ -219,7 +219,7 @@ class ClaudeRestIntegrationTest {
                 "haiku",
                 false,
                 true,
-                4096);
+                3); // maxTurns
 
         // When & Then: send HTTP POST request with all options
         webTestClient

@@ -28,15 +28,66 @@ import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
+import org.jspecify.annotations.Nullable;
 
 public interface ProcessExecutor {
 
     ExecutionResult execute(List<String> command, Path workingDirectory, Duration timeout);
 
+    /**
+     * Executes a command with optional stdin input.
+     *
+     * @param command the command to execute
+     * @param workingDirectory the working directory for the process
+     * @param timeout maximum time to wait for the process
+     * @param stdinInput optional input to write to the process stdin, or null
+     * @return the execution result
+     */
+    default ExecutionResult execute(
+            List<String> command, Path workingDirectory, Duration timeout, @Nullable String stdinInput) {
+        // Default implementation ignores stdinInput for backward compatibility
+        return execute(command, workingDirectory, timeout);
+    }
+
     CompletableFuture<ExecutionResult> executeAsync(List<String> command, Path workingDirectory, Duration timeout);
+
+    /**
+     * Executes a command asynchronously with optional stdin input.
+     *
+     * @param command the command to execute
+     * @param workingDirectory the working directory for the process
+     * @param timeout maximum time to wait for the process
+     * @param stdinInput optional input to write to the process stdin, or null
+     * @return a future containing the execution result
+     */
+    default CompletableFuture<ExecutionResult> executeAsync(
+            List<String> command, Path workingDirectory, Duration timeout, @Nullable String stdinInput) {
+        // Default implementation ignores stdinInput for backward compatibility
+        return executeAsync(command, workingDirectory, timeout);
+    }
 
     CompletableFuture<Integer> executeStreaming(
             List<String> command, Path workingDirectory, Consumer<String> lineConsumer, Duration timeout);
+
+    /**
+     * Executes a command with streaming output and optional stdin input.
+     *
+     * @param command the command to execute
+     * @param workingDirectory the working directory for the process
+     * @param lineConsumer consumer for each output line
+     * @param timeout maximum time to wait for the process
+     * @param stdinInput optional input to write to the process stdin, or null
+     * @return a future containing the exit code
+     */
+    default CompletableFuture<Integer> executeStreaming(
+            List<String> command,
+            Path workingDirectory,
+            Consumer<String> lineConsumer,
+            Duration timeout,
+            @Nullable String stdinInput) {
+        // Default implementation ignores stdinInput for backward compatibility
+        return executeStreaming(command, workingDirectory, lineConsumer, timeout);
+    }
 
     record ExecutionResult(int exitCode, String stdout, String stderr) {
         public boolean isSuccess() {

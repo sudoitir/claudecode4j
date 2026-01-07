@@ -33,22 +33,29 @@ import ir.sudoit.claudecode4j.api.spi.OutputParser;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.regex.Pattern;
 import java.util.stream.Stream;
+import org.jspecify.annotations.Nullable;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
- * Regex-based JSON parser for Claude CLI output.
+ * Jackson 3-based JSON parser for Claude CLI output.
  *
- * @deprecated Use {@link JacksonStreamParser} instead. This class uses regex patterns that cannot correctly parse
- *     nested JSON objects or all escape sequences.
+ * <p>Replaces the regex-based StreamJsonParser with proper JSON parsing using Jackson 3's JsonMapper for correct
+ * handling of:
+ *
+ * <ul>
+ *   <li>Nested JSON objects in tool inputs
+ *   <li>All JSON escape sequences (backslash-b, backslash-f, unicode escapes, etc.)
+ *   <li>Complex string content
+ * </ul>
  */
-@Deprecated(forRemoval = true)
-public final class StreamJsonParser implements OutputParser {
+public final class JacksonStreamParser implements OutputParser {
 
-    private static final Pattern TYPE_PATTERN = Pattern.compile("\"type\"\\s*:\\s*\"([^\"]+)\"");
-    private static final Pattern CONTENT_PATTERN = Pattern.compile("\"content\"\\s*:\\s*\"([^\"]*(?:\\\\.[^\"]*)*)\"");
-    private static final Pattern MESSAGE_PATTERN = Pattern.compile("\"message\"\\s*:\\s*\"([^\"]*(?:\\\\.[^\"]*)*)\"");
+    private static final System.Logger log = System.getLogger(JacksonStreamParser.class.getName());
+    private static final JsonMapper JSON_MAPPER = JsonMapper.builder().build();
 
     private final AtomicLong sequenceCounter = new AtomicLong(0);
 
@@ -97,40 +104,51 @@ public final class StreamJsonParser implements OutputParser {
 
     @Override
     public Stream<StreamEvent> parseStream(Stream<String> lines) {
-        return lines.filter(line -> !line.isBlank()).map(this::parseLine).filter(event -> event != null);
+        return lines.filter(line -> !line.isBlank()).map(this::parseLine).filter(Objects::nonNull);
     }
 
-    private StreamEvent parseLine(String line) {
+    private @Nullable StreamEvent parseLine(String line) {
         var trimmed = line.trim();
         if (!trimmed.startsWith("{")) {
             return StreamEvent.of(StreamEvent.EventType.ASSISTANT, trimmed, sequenceCounter.incrementAndGet());
         }
 
-        var typeMatcher = TYPE_PATTERN.matcher(trimmed);
-        var type = typeMatcher.find() ? mapType(typeMatcher.group(1)) : StreamEvent.EventType.ASSISTANT;
+        try {
+            JsonNode root = JSON_MAPPER.readTree(trimmed);
 
-        var contentMatcher = CONTENT_PATTERN.matcher(trimmed);
-        var messageMatcher = MESSAGE_PATTERN.matcher(trimmed);
+            var type = mapType(getTextOrNull(root, "type"));
+            var content = getTextOrNull(root, "content");
+            if (content == null) {
+                content = getTextOrNull(root, "message");
+            }
+            if (content == null) {
+                content = "";
+            }
 
-        String content;
-        if (contentMatcher.find()) {
-            content = unescapeJson(contentMatcher.group(1));
-        } else if (messageMatcher.find()) {
-            content = unescapeJson(messageMatcher.group(1));
-        } else {
-            content = "";
+            var toolName = getTextOrNull(root, "name");
+            String toolInput = null;
+            if (root.has("input")) {
+                var inputNode = root.get("input");
+                if (inputNode != null && !inputNode.isNull()) {
+                    toolInput = JSON_MAPPER.writeValueAsString(inputNode);
+                }
+            }
+
+            return new StreamEvent(
+                    type, content, Instant.now(), sequenceCounter.incrementAndGet(), toolName, toolInput);
+        } catch (Exception e) {
+            log.log(System.Logger.Level.DEBUG, "Failed to parse JSON line, treating as text: {0}", e.getMessage());
+            return StreamEvent.of(StreamEvent.EventType.ASSISTANT, trimmed, sequenceCounter.incrementAndGet());
         }
-
-        return new StreamEvent(
-                type,
-                content,
-                Instant.now(),
-                sequenceCounter.incrementAndGet(),
-                extractToolName(trimmed),
-                extractToolInput(trimmed));
     }
 
-    private StreamEvent.EventType mapType(String type) {
+    private @Nullable String getTextOrNull(JsonNode node, String field) {
+        var child = node.get(field);
+        return (child != null && child.isTextual()) ? child.asText() : null;
+    }
+
+    private StreamEvent.EventType mapType(@Nullable String type) {
+        if (type == null) return StreamEvent.EventType.ASSISTANT;
         return switch (type.toLowerCase()) {
             case "system" -> StreamEvent.EventType.SYSTEM;
             case "assistant", "text" -> StreamEvent.EventType.ASSISTANT;
@@ -142,25 +160,5 @@ public final class StreamJsonParser implements OutputParser {
             case "message_stop", "complete" -> StreamEvent.EventType.COMPLETE;
             default -> StreamEvent.EventType.ASSISTANT;
         };
-    }
-
-    private String unescapeJson(String value) {
-        return value.replace("\\n", "\n")
-                .replace("\\r", "\r")
-                .replace("\\t", "\t")
-                .replace("\\\"", "\"")
-                .replace("\\\\", "\\");
-    }
-
-    private String extractToolName(String json) {
-        var pattern = Pattern.compile("\"name\"\\s*:\\s*\"([^\"]+)\"");
-        var matcher = pattern.matcher(json);
-        return matcher.find() ? matcher.group(1) : null;
-    }
-
-    private String extractToolInput(String json) {
-        var pattern = Pattern.compile("\"input\"\\s*:\\s*\\{([^}]*)\\}");
-        var matcher = pattern.matcher(json);
-        return matcher.find() ? "{" + matcher.group(1) + "}" : null;
     }
 }

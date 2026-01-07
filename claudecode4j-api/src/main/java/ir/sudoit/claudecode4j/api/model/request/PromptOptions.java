@@ -24,6 +24,7 @@
 package ir.sudoit.claudecode4j.api.model.request;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.Objects;
 import org.jspecify.annotations.Nullable;
 
@@ -33,15 +34,20 @@ public record PromptOptions(
         @Nullable String model,
         boolean dangerouslySkipPermissions,
         boolean printMode,
-        @Nullable Integer maxTokens) {
+        @Nullable Integer maxTurns,
+        List<String> allowedTools,
+        List<String> disallowedTools) {
     public static final Duration DEFAULT_TIMEOUT = Duration.ofMinutes(5);
 
     public PromptOptions {
         Objects.requireNonNull(outputFormat, "outputFormat");
+        allowedTools = allowedTools != null ? List.copyOf(allowedTools) : List.of();
+        disallowedTools = disallowedTools != null ? List.copyOf(disallowedTools) : List.of();
     }
 
     public static PromptOptions defaults() {
-        return new PromptOptions(DEFAULT_TIMEOUT, OutputFormat.STREAM_JSON, null, false, false, null);
+        return new PromptOptions(
+                DEFAULT_TIMEOUT, OutputFormat.STREAM_JSON, null, false, false, null, List.of(), List.of());
     }
 
     public static Builder builder() {
@@ -54,7 +60,9 @@ public record PromptOptions(
         private @Nullable String model;
         private boolean dangerouslySkipPermissions;
         private boolean printMode;
-        private @Nullable Integer maxTokens;
+        private @Nullable Integer maxTurns;
+        private List<String> allowedTools = List.of();
+        private List<String> disallowedTools = List.of();
 
         private Builder() {}
 
@@ -83,13 +91,41 @@ public record PromptOptions(
             return this;
         }
 
-        public Builder maxTokens(@Nullable Integer maxTokens) {
-            this.maxTokens = maxTokens;
+        public Builder maxTurns(@Nullable Integer maxTurns) {
+            this.maxTurns = maxTurns;
+            return this;
+        }
+
+        public Builder allowedTools(List<String> allowedTools) {
+            this.allowedTools = allowedTools;
+            return this;
+        }
+
+        public Builder allowedTools(String... allowedTools) {
+            this.allowedTools = List.of(allowedTools);
+            return this;
+        }
+
+        public Builder disallowedTools(List<String> disallowedTools) {
+            this.disallowedTools = disallowedTools;
+            return this;
+        }
+
+        public Builder disallowedTools(String... disallowedTools) {
+            this.disallowedTools = List.of(disallowedTools);
             return this;
         }
 
         public PromptOptions build() {
-            return new PromptOptions(timeout, outputFormat, model, dangerouslySkipPermissions, printMode, maxTokens);
+            return new PromptOptions(
+                    timeout,
+                    outputFormat,
+                    model,
+                    dangerouslySkipPermissions,
+                    printMode,
+                    maxTurns,
+                    allowedTools,
+                    disallowedTools);
         }
     }
 }

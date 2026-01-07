@@ -78,16 +78,17 @@ public final class DefaultClaudeClient implements ClaudeClient {
         ensureOpen();
         var sanitized = sanitizer.sanitize(prompt);
         var effectiveOptions = applyConfigDefaults(options);
-        var command = new ClaudeCommandBuilder(binaryPath)
+        var commandWithStdin = new ClaudeCommandBuilder(binaryPath)
                 .prompt(sanitized)
                 .options(effectiveOptions)
-                .build();
+                .buildWithStdin();
 
         try {
             concurrencyLimiter.acquire();
             try {
                 var timeout = effectiveOptions.timeout() != null ? effectiveOptions.timeout() : config.defaultTimeout();
-                var result = executor.execute(command, resolveWorkingDir(prompt), timeout);
+                var result = executor.execute(
+                        commandWithStdin.command(), resolveWorkingDir(prompt), timeout, commandWithStdin.stdinInput());
 
                 if (result.exitCode() == -1 && result.stderr().contains("Timeout")) {
                     throw new ClaudeTimeoutException(timeout);
@@ -124,10 +125,10 @@ public final class DefaultClaudeClient implements ClaudeClient {
         ensureOpen();
         var sanitized = sanitizer.sanitize(prompt);
         var effectiveOptions = applyConfigDefaults(options);
-        var command = new ClaudeCommandBuilder(binaryPath)
+        var commandWithStdin = new ClaudeCommandBuilder(binaryPath)
                 .prompt(sanitized)
                 .options(effectiveOptions)
-                .build();
+                .buildWithStdin();
 
         var publisher = new SubmissionPublisher<StreamEvent>();
 
@@ -139,11 +140,12 @@ public final class DefaultClaudeClient implements ClaudeClient {
                             effectiveOptions.timeout() != null ? effectiveOptions.timeout() : config.defaultTimeout();
 
                     executor.executeStreaming(
-                                    command,
+                                    commandWithStdin.command(),
                                     resolveWorkingDir(prompt),
                                     line -> parser.parseStream(java.util.stream.Stream.of(line))
                                             .forEach(publisher::submit),
-                                    timeout)
+                                    timeout,
+                                    commandWithStdin.stdinInput())
                             .join();
                 } finally {
                     concurrencyLimiter.release();
@@ -215,7 +217,9 @@ public final class DefaultClaudeClient implements ClaudeClient {
                     .model(options.model())
                     .dangerouslySkipPermissions(true)
                     .printMode(options.printMode())
-                    .maxTokens(options.maxTokens())
+                    .maxTurns(options.maxTurns())
+                    .allowedTools(options.allowedTools())
+                    .disallowedTools(options.disallowedTools())
                     .build();
         }
         return options;

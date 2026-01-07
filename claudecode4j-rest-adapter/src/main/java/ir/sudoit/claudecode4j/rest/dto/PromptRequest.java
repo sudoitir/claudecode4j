@@ -42,7 +42,7 @@ public record PromptRequest(
         @Nullable String model,
         @Nullable Boolean dangerouslySkipPermissions,
         @Nullable Boolean printMode,
-        @Nullable Integer maxTokens) {
+        @Nullable Integer maxTurns) {
     public Prompt toPrompt() {
         var builder = Prompt.builder().text(text);
         if (systemPrompt != null) builder.systemPrompt(systemPrompt);
@@ -62,7 +62,7 @@ public record PromptRequest(
         if (model != null) builder.model(model);
         if (dangerouslySkipPermissions != null) builder.dangerouslySkipPermissions(dangerouslySkipPermissions);
         if (printMode != null) builder.printMode(printMode);
-        if (maxTokens != null) builder.maxTokens(maxTokens);
+        if (maxTurns != null) builder.maxTurns(maxTurns);
         return builder.build();
     }
 }

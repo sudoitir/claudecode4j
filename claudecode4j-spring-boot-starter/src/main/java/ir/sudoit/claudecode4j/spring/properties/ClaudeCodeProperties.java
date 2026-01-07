@@ -38,7 +38,8 @@ public record ClaudeCodeProperties(
         @DefaultValue("false") boolean dangerouslySkipPermissions,
         @DefaultValue("true") boolean enabled,
         @Nullable Health health,
-        @Nullable Metrics metrics) {
+        @Nullable Metrics metrics,
+        @Nullable Mock mock) {
     public record Health(
             @DefaultValue("true") boolean enabled,
             @DefaultValue("10s") Duration timeout,
@@ -47,6 +48,11 @@ public record ClaudeCodeProperties(
     public record Metrics(
             @DefaultValue("true") boolean enabled,
             @DefaultValue("claude.code") String prefix) {}
+
+    public record Mock(
+            @DefaultValue("false") boolean enabled,
+            @Nullable String response,
+            @Nullable Duration delay) {}
 
     public ClaudeConfig toClaudeConfig() {
         return ClaudeConfig.builder()
@@ -71,5 +77,17 @@ public record ClaudeCodeProperties(
 
     public Duration getHealthTimeout() {
         return health != null ? health.timeout() : Duration.ofSeconds(10);
+    }
+
+    public boolean isMockEnabled() {
+        return mock != null && mock.enabled();
+    }
+
+    public @Nullable String getMockResponse() {
+        return mock != null ? mock.response() : null;
+    }
+
+    public @Nullable Duration getMockDelay() {
+        return mock != null ? mock.delay() : null;
     }
 }

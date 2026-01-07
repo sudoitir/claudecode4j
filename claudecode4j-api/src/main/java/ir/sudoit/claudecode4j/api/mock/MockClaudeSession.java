@@ -21,33 +21,30 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package ir.sudoit.claudecode4j.core.client;
+package ir.sudoit.claudecode4j.api.mock;
 
 import ir.sudoit.claudecode4j.api.client.ClaudeSession;
-import ir.sudoit.claudecode4j.api.model.request.Prompt;
 import ir.sudoit.claudecode4j.api.model.request.PromptOptions;
 import ir.sudoit.claudecode4j.api.model.response.ClaudeResponse;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 import org.jspecify.annotations.Nullable;
 
-public final class DefaultClaudeSession implements ClaudeSession {
+/** Mock session implementation for testing. */
+public final class MockClaudeSession implements ClaudeSession {
 
-    private final DefaultClaudeClient client;
+    private final MockClaudeClient client;
     private final String sessionId;
     private final List<ClaudeResponse> conversationHistory;
-    private final Set<CompletableFuture<ClaudeResponse>> pendingOperations = ConcurrentHashMap.newKeySet();
     private final ReentrantLock lock = new ReentrantLock();
     private @Nullable String systemPrompt;
     private volatile boolean closed = false;
 
-    DefaultClaudeSession(DefaultClaudeClient client) {
+    MockClaudeSession(MockClaudeClient client) {
         this.client = client;
         this.sessionId = UUID.randomUUID().toString();
         this.conversationHistory = new ArrayList<>();
@@ -66,7 +63,10 @@ public final class DefaultClaudeSession implements ClaudeSession {
     @Override
     public ClaudeResponse send(String message, PromptOptions options) {
         ensureOpen();
-        var prompt = Prompt.builder().text(message).systemPrompt(systemPrompt).build();
+        var prompt = ir.sudoit.claudecode4j.api.model.request.Prompt.builder()
+                .text(message)
+                .systemPrompt(systemPrompt)
+                .build();
 
         var response = client.execute(prompt, options);
 
@@ -82,15 +82,8 @@ public final class DefaultClaudeSession implements ClaudeSession {
 
     @Override
     public CompletableFuture<ClaudeResponse> sendAsync(String message) {
-        ensureOpen();
-        var future = CompletableFuture.supplyAsync(
+        return CompletableFuture.supplyAsync(
                 () -> send(message), runnable -> Thread.ofVirtual().start(runnable));
-
-        // Track the operation and remove it when completed
-        pendingOperations.add(future);
-        future.whenComplete((result, error) -> pendingOperations.remove(future));
-
-        return future;
     }
 
     @Override
@@ -126,13 +119,6 @@ public final class DefaultClaudeSession implements ClaudeSession {
     @Override
     public void close() {
         closed = true;
-
-        // Cancel all pending async operations
-        for (var future : pendingOperations) {
-            future.cancel(true);
-        }
-        pendingOperations.clear();
-
         clearHistory();
     }
 

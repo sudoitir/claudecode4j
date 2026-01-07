@@ -29,29 +29,34 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.DelayQueue;
+import java.util.concurrent.Delayed;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import org.jspecify.annotations.Nullable;
 
+/**
+ * Manages correlation IDs for Kafka request-reply pattern.
+ *
+ * <p>Uses a {@link DelayQueue} for efficient expiry-based cleanup instead of polling. Each registered request is
+ * tracked and automatically expired after the timeout.
+ */
 public class CorrelationIdManager {
+
+    private static final System.Logger log = System.getLogger(CorrelationIdManager.class.getName());
 
     public static final String CORRELATION_ID_HEADER = "claude-correlation-id";
     public static final String REPLY_TOPIC_HEADER = "claude-reply-topic";
 
     private final Map<String, PendingRequest<?>> pendingRequests = new ConcurrentHashMap<>();
+    private final DelayQueue<ExpiringEntry> expiryQueue = new DelayQueue<>();
     private final Duration defaultTimeout;
-    private final ScheduledExecutorService cleanupExecutor;
+    private final Thread cleanupThread;
+    private volatile boolean running = true;
 
     public CorrelationIdManager(Duration defaultTimeout) {
         this.defaultTimeout = defaultTimeout;
-        this.cleanupExecutor = Executors.newSingleThreadScheduledExecutor(r -> {
-            var thread = Thread.ofVirtual().unstarted(r);
-            thread.setName("correlation-cleanup");
-            return thread;
-        });
-        scheduleCleanup();
+        this.cleanupThread = Thread.ofVirtual().name("correlation-cleanup").start(this::cleanupLoop);
     }
 
     public String generateCorrelationId() {
@@ -67,8 +72,11 @@ public class CorrelationIdManager {
         var request = new PendingRequest<>(future, responseType, Instant.now().plus(timeout));
         pendingRequests.put(correlationId, request);
 
-        future.orTimeout(timeout.toMillis(), TimeUnit.MILLISECONDS)
-                .whenComplete((result, error) -> pendingRequests.remove(correlationId));
+        // Add to delay queue for efficient expiry-based cleanup
+        expiryQueue.add(new ExpiringEntry(correlationId, timeout));
+
+        // Remove from map when completed by any means (success, failure, or timeout)
+        future.whenComplete((result, error) -> pendingRequests.remove(correlationId));
 
         return future;
     }
@@ -103,32 +111,81 @@ public class CorrelationIdManager {
         return pendingRequests.size();
     }
 
-    private void scheduleCleanup() {
-        cleanupExecutor.scheduleAtFixedRate(
-                () -> {
-                    var now = Instant.now();
-                    pendingRequests.entrySet().removeIf(entry -> {
-                        if (entry.getValue().expiry().isBefore(now)) {
-                            entry.getValue()
-                                    .future()
-                                    .completeExceptionally(
-                                            new TimeoutException("Request timed out: " + entry.getKey()));
-                            return true;
-                        }
-                        return false;
-                    });
-                },
-                1,
-                1,
-                TimeUnit.MINUTES);
+    /**
+     * Cleanup loop that processes expired entries from the delay queue.
+     *
+     * <p>Uses blocking poll with 1-second timeout to allow checking the running flag.
+     */
+    private void cleanupLoop() {
+        while (running) {
+            try {
+                ExpiringEntry entry = expiryQueue.poll(1, TimeUnit.SECONDS);
+                if (entry != null) {
+                    var pending = pendingRequests.remove(entry.correlationId());
+                    if (pending != null && !pending.future().isDone()) {
+                        log.log(System.Logger.Level.DEBUG, "Request timed out: {0}", entry.correlationId());
+                        pending.future()
+                                .completeExceptionally(
+                                        new TimeoutException("Request timed out: " + entry.correlationId()));
+                    }
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            }
+        }
     }
 
+    /**
+     * Shuts down the manager, canceling all pending requests.
+     *
+     * <p>Waits up to 5 seconds for the cleanup thread to terminate.
+     */
     public void shutdown() {
-        cleanupExecutor.shutdown();
+        running = false;
+        cleanupThread.interrupt();
+
+        try {
+            cleanupThread.join(5000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.log(System.Logger.Level.WARNING, "Interrupted while waiting for cleanup thread to terminate");
+        }
+
+        // Complete all pending requests exceptionally
         pendingRequests.values().forEach(request -> request.future()
                 .completeExceptionally(new IllegalStateException("Manager shutdown")));
         pendingRequests.clear();
+        expiryQueue.clear();
     }
 
     private record PendingRequest<T>(CompletableFuture<T> future, Class<T> responseType, Instant expiry) {}
+
+    /** Entry in the delay queue for tracking request expiry. */
+    private static final class ExpiringEntry implements Delayed {
+        private final String correlationId;
+        private final long expiryTimeNanos;
+
+        ExpiringEntry(String correlationId, Duration timeout) {
+            this.correlationId = correlationId;
+            this.expiryTimeNanos = System.nanoTime() + timeout.toNanos();
+        }
+
+        String correlationId() {
+            return correlationId;
+        }
+
+        @Override
+        public long getDelay(TimeUnit unit) {
+            return unit.convert(expiryTimeNanos - System.nanoTime(), TimeUnit.NANOSECONDS);
+        }
+
+        @Override
+        public int compareTo(Delayed other) {
+            if (other instanceof ExpiringEntry e) {
+                return Long.compare(expiryTimeNanos, e.expiryTimeNanos);
+            }
+            return Long.compare(getDelay(TimeUnit.NANOSECONDS), other.getDelay(TimeUnit.NANOSECONDS));
+        }
+    }
 }

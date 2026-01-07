@@ -3,6 +3,7 @@ module ir.sudoit.claudecode4j.core {
 
     requires ir.sudoit.claudecode4j.api;
     requires static org.jspecify;
+    requires tools.jackson.databind;
 
     exports ir.sudoit.claudecode4j.core.client;
     exports ir.sudoit.claudecode4j.core.resolver;
@@ -20,5 +21,5 @@ module ir.sudoit.claudecode4j.core {
     provides ir.sudoit.claudecode4j.api.spi.ProcessExecutor with
             ir.sudoit.claudecode4j.core.process.VirtualThreadExecutor;
     provides ir.sudoit.claudecode4j.api.spi.OutputParser with
-            ir.sudoit.claudecode4j.core.parser.StreamJsonParser;
+            ir.sudoit.claudecode4j.core.parser.JacksonStreamParser;
 }

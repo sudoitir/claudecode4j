@@ -33,6 +33,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.StructuredTaskScope;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import org.jspecify.annotations.Nullable;
 
 public final class VirtualThreadExecutor implements ProcessExecutor {
 
@@ -53,24 +54,24 @@ public final class VirtualThreadExecutor implements ProcessExecutor {
                 scope.join();
                 boolean completed = process.waitFor(timeout.toMillis(), TimeUnit.MILLISECONDS);
                 if (!completed) {
-                    process.destroyForcibly();
+                    ProcessTerminator.terminate(process);
                     return new ExecutionResult(-1, "", "Timeout: Process did not exit");
                 }
 
                 return new ExecutionResult(process.exitValue(), stdoutTask.get(), stderrTask.get());
             }
         } catch (StructuredTaskScope.TimeoutException e) {
-            if (process != null) process.destroyForcibly();
+            ProcessTerminator.terminate(process);
             return new ExecutionResult(-1, "", "Timeout");
         } catch (StructuredTaskScope.FailedException e) {
-            if (process != null) process.destroyForcibly();
+            ProcessTerminator.terminate(process);
             return new ExecutionResult(-1, "", "Error: " + e.getCause().getMessage());
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            if (process != null) process.destroyForcibly();
+            ProcessTerminator.terminate(process);
             return new ExecutionResult(-1, "", "Interrupted: " + e.getMessage());
         } catch (Exception e) {
-            if (process != null) process.destroyForcibly();
+            ProcessTerminator.terminate(process);
             return new ExecutionResult(-1, "", "Error: " + e.getMessage());
         }
     }
@@ -106,7 +107,123 @@ public final class VirtualThreadExecutor implements ProcessExecutor {
 
                         boolean completed = process.waitFor(timeout.toMillis(), TimeUnit.MILLISECONDS);
                         if (!completed) {
-                            process.destroyForcibly();
+                            ProcessTerminator.terminate(process);
+                            return -1;
+                        }
+
+                        return process.exitValue();
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        return -1;
+                    } catch (Exception e) {
+                        return -1;
+                    }
+                },
+                runnable -> Thread.ofVirtual().start(runnable));
+    }
+
+    @Override
+    public ExecutionResult execute(
+            List<String> command, Path workingDirectory, Duration timeout, @Nullable String stdinInput) {
+        if (stdinInput == null) {
+            return execute(command, workingDirectory, timeout);
+        }
+
+        Process process = null;
+        try {
+            process = new ProcessBuilder(command)
+                    .directory(workingDirectory.toFile())
+                    .start();
+
+            // Write stdin input in a virtual thread
+            Process finalProcess = process;
+            Thread.ofVirtual().start(() -> {
+                try (var writer = finalProcess.outputWriter()) {
+                    writer.write(stdinInput);
+                    writer.flush();
+                } catch (IOException ignored) {
+                    // Process may have terminated
+                }
+            });
+
+            try (var scope = StructuredTaskScope.open(
+                    StructuredTaskScope.Joiner.<String>awaitAllSuccessfulOrThrow(),
+                    config -> config.withTimeout(timeout))) {
+                var stdoutTask = scope.fork(() -> readStream(finalProcess.inputReader()));
+                var stderrTask = scope.fork(() -> readStream(finalProcess.errorReader()));
+                scope.join();
+                boolean completed = process.waitFor(timeout.toMillis(), TimeUnit.MILLISECONDS);
+                if (!completed) {
+                    ProcessTerminator.terminate(process);
+                    return new ExecutionResult(-1, "", "Timeout: Process did not exit");
+                }
+
+                return new ExecutionResult(process.exitValue(), stdoutTask.get(), stderrTask.get());
+            }
+        } catch (StructuredTaskScope.TimeoutException e) {
+            ProcessTerminator.terminate(process);
+            return new ExecutionResult(-1, "", "Timeout");
+        } catch (StructuredTaskScope.FailedException e) {
+            ProcessTerminator.terminate(process);
+            return new ExecutionResult(-1, "", "Error: " + e.getCause().getMessage());
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            ProcessTerminator.terminate(process);
+            return new ExecutionResult(-1, "", "Interrupted: " + e.getMessage());
+        } catch (Exception e) {
+            ProcessTerminator.terminate(process);
+            return new ExecutionResult(-1, "", "Error: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public CompletableFuture<ExecutionResult> executeAsync(
+            List<String> command, Path workingDirectory, Duration timeout, @Nullable String stdinInput) {
+        return CompletableFuture.supplyAsync(
+                () -> execute(command, workingDirectory, timeout, stdinInput),
+                runnable -> Thread.ofVirtual().start(runnable));
+    }
+
+    @Override
+    public CompletableFuture<Integer> executeStreaming(
+            List<String> command,
+            Path workingDirectory,
+            Consumer<String> lineConsumer,
+            Duration timeout,
+            @Nullable String stdinInput) {
+        return CompletableFuture.supplyAsync(
+                () -> {
+                    try {
+                        var process = new ProcessBuilder(command)
+                                .directory(workingDirectory.toFile())
+                                .redirectErrorStream(true)
+                                .start();
+
+                        // Write stdin input if provided
+                        if (stdinInput != null) {
+                            Thread.ofVirtual().start(() -> {
+                                try (var writer = process.outputWriter()) {
+                                    writer.write(stdinInput);
+                                    writer.flush();
+                                } catch (IOException ignored) {
+                                    // Process may have terminated
+                                }
+                            });
+                        }
+
+                        Thread.ofVirtual().start(() -> {
+                            try (var reader = process.inputReader()) {
+                                String line;
+                                while ((line = reader.readLine()) != null) {
+                                    lineConsumer.accept(line);
+                                }
+                            } catch (IOException ignored) {
+                            }
+                        });
+
+                        boolean completed = process.waitFor(timeout.toMillis(), TimeUnit.MILLISECONDS);
+                        if (!completed) {
+                            ProcessTerminator.terminate(process);
                             return -1;
                         }
 

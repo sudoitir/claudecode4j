@@ -25,6 +25,9 @@ package ir.sudoit.claudecode4j.spring.autoconfigure;
 
 import ir.sudoit.claudecode4j.api.client.ClaudeClient;
 import ir.sudoit.claudecode4j.api.client.ClaudeClientFactory;
+import ir.sudoit.claudecode4j.api.mock.MockClaudeClient;
+import ir.sudoit.claudecode4j.api.mock.MockResponseProvider;
+import ir.sudoit.claudecode4j.api.mock.StaticMockProvider;
 import ir.sudoit.claudecode4j.spring.properties.ClaudeCodeProperties;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -41,7 +44,29 @@ public class ClaudeCodeAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
+    @ConditionalOnProperty(prefix = "claude.code.mock", name = "enabled", havingValue = "false", matchIfMissing = true)
     public ClaudeClient claudeClient(ClaudeCodeProperties properties) {
         return ClaudeClientFactory.create(properties.toClaudeConfig());
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(MockResponseProvider.class)
+    @ConditionalOnProperty(prefix = "claude.code.mock", name = "enabled", havingValue = "true")
+    public MockResponseProvider mockResponseProvider(ClaudeCodeProperties properties) {
+        var response = properties.getMockResponse();
+        return response != null ? StaticMockProvider.withResponse(response) : StaticMockProvider.withDefault();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    @ConditionalOnProperty(prefix = "claude.code.mock", name = "enabled", havingValue = "true")
+    public ClaudeClient mockClaudeClient(ClaudeCodeProperties properties, MockResponseProvider mockProvider) {
+        var builder = MockClaudeClient.builder(mockProvider).mockEnabled(true);
+
+        if (properties.getMockDelay() != null) {
+            builder.mockDelay(properties.getMockDelay());
+        }
+
+        return builder.build();
     }
 }

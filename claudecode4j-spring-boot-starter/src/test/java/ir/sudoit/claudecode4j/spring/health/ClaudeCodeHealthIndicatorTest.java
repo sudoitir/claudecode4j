@@ -54,7 +54,8 @@ class ClaudeCodeHealthIndicatorTest {
                 false,
                 true,
                 new ClaudeCodeProperties.Health(true, Duration.ofSeconds(30), null),
-                new ClaudeCodeProperties.Metrics(true, "claude.code"));
+                new ClaudeCodeProperties.Metrics(true, "claude.code"),
+                null);
         healthIndicator = new ClaudeCodeHealthIndicator(claudeClient, properties);
     }
 

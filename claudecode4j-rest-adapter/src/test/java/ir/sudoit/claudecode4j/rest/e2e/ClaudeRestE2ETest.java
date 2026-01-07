@@ -46,10 +46,8 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 /**
- * End-to-End tests that invoke the REAL Claude CLI.
- * These tests require Claude CLI to be installed and authenticated.
- * Run with: mvn test -Dgroups=e2e
- * Skip with: mvn test -DexcludedGroups=e2e
+ * End-to-End tests that invoke the REAL Claude CLI. These tests require Claude CLI to be installed and authenticated.
+ * Run with: mvn test -Dgroups=e2e Skip with: mvn test -DexcludedGroups=e2e
  */
 @Tag("e2e")
 @SpringBootTest(
@@ -119,14 +117,14 @@ class ClaudeRestE2ETest {
                 null,
                 60L,
                 "TEXT",
-                null,
-                false,
+                "haiku",
+                true, // dangerouslySkipPermissions - REQUIRED for non-interactive
                 true,
-                100);
+                null); // no maxTurns limit
 
         log.info("  Request: POST /api/claude/prompt");
         log.info("    text: 'What is 2+2? Reply with just the number.'");
-        log.info("    timeout: 60s, maxTokens: 100");
+        log.info("    model: haiku, timeout: 60s, printMode: true");
 
         var response = webTestClient
                 .post()
@@ -164,10 +162,10 @@ class ClaudeRestE2ETest {
                 null,
                 60L,
                 "TEXT",
-                null,
-                false,
+                "haiku",
+                true, // dangerouslySkipPermissions - REQUIRED for non-interactive
                 true,
-                100);
+                null); // no maxTurns limit
 
         log.info("  Request: POST /api/claude/prompt/async");
         log.info("    text: 'What is the capital of France? Reply with just the city name.'");
@@ -231,10 +229,10 @@ class ClaudeRestE2ETest {
                 null,
                 90L,
                 "TEXT",
-                null,
-                false,
+                "haiku",
+                true, // dangerouslySkipPermissions - REQUIRED for non-interactive
                 true,
-                200);
+                null); // no maxTurns limit
 
         log.info("  Request: POST /api/claude/prompt");
         log.info("    text: 'List 3 prime numbers less than 10, comma separated.'");
