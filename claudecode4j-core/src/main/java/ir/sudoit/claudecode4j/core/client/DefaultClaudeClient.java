@@ -44,6 +44,18 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.SubmissionPublisher;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * Default implementation of {@link ClaudeClient} that wraps the Claude CLI.
+ *
+ * <p>This client uses a {@link Semaphore} to limit concurrent executions. The concurrency limit is configured via
+ * {@link ClaudeConfig#concurrencyLimit()} and defaults to 4.
+ *
+ * <p><strong>Important:</strong> The concurrency limiting mechanism only works within a single JVM instance. In
+ * clustered deployments with multiple JVM instances, external rate limiting solutions should be used (e.g., Redis-based
+ * distributed rate limiting, API Gateway throttling, or database-backed semaphores).
+ *
+ * @see ClaudeConfig#concurrencyLimit()
+ */
 public final class DefaultClaudeClient implements ClaudeClient {
 
     private final ClaudeConfig config;

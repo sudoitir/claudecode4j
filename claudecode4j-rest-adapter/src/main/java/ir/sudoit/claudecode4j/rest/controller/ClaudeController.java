@@ -28,12 +28,15 @@ import ir.sudoit.claudecode4j.api.client.ClaudeClient;
 import ir.sudoit.claudecode4j.api.exception.ClaudeException;
 import ir.sudoit.claudecode4j.rest.dto.PromptRequest;
 import ir.sudoit.claudecode4j.rest.dto.PromptResponse;
+import ir.sudoit.claudecode4j.rest.sse.SseHeartbeatEmitter;
 import jakarta.validation.Valid;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -49,9 +52,13 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 public class ClaudeController {
 
     private final ClaudeClient claudeClient;
+    private final ScheduledExecutorService heartbeatScheduler;
 
     public ClaudeController(ClaudeClient claudeClient) {
         this.claudeClient = claudeClient;
+        // Use virtual thread-based scheduler for heartbeats
+        this.heartbeatScheduler =
+                Executors.newScheduledThreadPool(1, Thread.ofVirtual().factory());
     }
 
     @PostMapping("/prompt")
@@ -72,7 +79,7 @@ public class ClaudeController {
     @PostMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @ConcurrencyLimit
     public SseEmitter streamPrompt(@Valid @RequestBody PromptRequest request) {
-        var emitter = new SseEmitter(Duration.ofMinutes(10).toMillis());
+        var emitter = new SseHeartbeatEmitter(Duration.ofMinutes(10).toMillis(), heartbeatScheduler);
 
         Thread.ofVirtual().start(() -> {
             try {

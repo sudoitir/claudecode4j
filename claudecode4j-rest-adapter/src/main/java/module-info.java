@@ -14,7 +14,12 @@ module ir.sudoit.claudecode4j.rest {
     exports ir.sudoit.claudecode4j.rest.controller;
     exports ir.sudoit.claudecode4j.rest.dto;
     exports ir.sudoit.claudecode4j.rest.autoconfigure;
+    exports ir.sudoit.claudecode4j.rest.sse;
 
+    opens ir.sudoit.claudecode4j.rest.sse to
+            spring.core,
+            spring.beans,
+            spring.context;
     opens ir.sudoit.claudecode4j.rest.controller to
             spring.core,
             spring.beans,

@@ -15,7 +15,6 @@ module ir.sudoit.claudecode4j.kafka {
     exports ir.sudoit.claudecode4j.kafka.producer;
     exports ir.sudoit.claudecode4j.kafka.config;
     exports ir.sudoit.claudecode4j.kafka.autoconfigure;
-    exports ir.sudoit.claudecode4j.kafka.correlation;
 
     opens ir.sudoit.claudecode4j.kafka.listener to
             spring.core,
@@ -30,10 +29,6 @@ module ir.sudoit.claudecode4j.kafka {
             spring.beans,
             spring.context;
     opens ir.sudoit.claudecode4j.kafka.autoconfigure to
-            spring.core,
-            spring.beans,
-            spring.context;
-    opens ir.sudoit.claudecode4j.kafka.correlation to
             spring.core,
             spring.beans,
             spring.context;

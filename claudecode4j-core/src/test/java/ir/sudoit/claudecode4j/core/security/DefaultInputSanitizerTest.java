@@ -136,6 +136,51 @@ class DefaultInputSanitizerTest {
                     .isInstanceOf(SecurityException.class)
                     .hasMessageContaining("exceeds maximum length of 256");
         }
+
+        @Test
+        @DisplayName("should accept prompt text with Markdown code blocks")
+        void shouldAcceptPromptTextWithMarkdownCodeBlocks() {
+            var prompt = Prompt.of("Here is some code:\n```java\npublic class Test {}\n```");
+            var result = sanitizer.sanitize(prompt);
+            assertThat(result).isEqualTo(prompt);
+        }
+
+        @Test
+        @DisplayName("should accept prompt text with inline code")
+        void shouldAcceptPromptTextWithInlineCode() {
+            var prompt = Prompt.of("Use the `println()` method to print output");
+            var result = sanitizer.sanitize(prompt);
+            assertThat(result).isEqualTo(prompt);
+        }
+
+        @Test
+        @DisplayName("should accept prompt text with multiple backtick sequences")
+        void shouldAcceptPromptTextWithMultipleBacktickSequences() {
+            var prompt = Prompt.of("Compare `foo()` with `bar()` and ```\nmultiline\ncode\n```");
+            var result = sanitizer.sanitize(prompt);
+            assertThat(result).isEqualTo(prompt);
+        }
+
+        @Test
+        @DisplayName("should accept system prompt with Markdown code blocks")
+        void shouldAcceptSystemPromptWithMarkdownCodeBlocks() {
+            var prompt = Prompt.builder()
+                    .text("Help me with code")
+                    .systemPrompt("Format responses with ```code``` blocks when appropriate")
+                    .build();
+            var result = sanitizer.sanitize(prompt);
+            assertThat(result).isEqualTo(prompt);
+        }
+
+        @Test
+        @DisplayName("should reject agent name with backtick substitution pattern")
+        void shouldRejectAgentNameWithBacktickSubstitutionPattern() {
+            var prompt =
+                    Prompt.builder().text("Valid text").agentName("`rm -rf /`").build();
+            assertThatThrownBy(() -> sanitizer.sanitize(prompt))
+                    .isInstanceOf(SecurityException.class)
+                    .hasMessageContaining("Dangerous character");
+        }
     }
 
     @Nested

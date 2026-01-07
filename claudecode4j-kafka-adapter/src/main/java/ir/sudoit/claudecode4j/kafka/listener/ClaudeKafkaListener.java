@@ -27,93 +27,64 @@ import ir.sudoit.claudecode4j.api.client.ClaudeClient;
 import ir.sudoit.claudecode4j.api.model.request.Prompt;
 import ir.sudoit.claudecode4j.api.model.request.PromptOptions;
 import ir.sudoit.claudecode4j.api.model.response.ClaudeResponse;
-import ir.sudoit.claudecode4j.kafka.config.ClaudeKafkaProperties;
-import ir.sudoit.claudecode4j.kafka.correlation.CorrelationIdManager;
-import java.nio.charset.StandardCharsets;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.producer.ProducerRecord;
 import org.jspecify.annotations.Nullable;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.messaging.handler.annotation.Header;
+import org.springframework.messaging.handler.annotation.SendTo;
 
+/**
+ * Kafka listener that processes Claude prompt requests.
+ *
+ * <p>Uses Spring Kafka's {@code @SendTo} annotation for automatic reply routing based on the reply topic header set by
+ * {@link org.springframework.kafka.requestreply.ReplyingKafkaTemplate}.
+ */
 public class ClaudeKafkaListener {
 
     private final ClaudeClient claudeClient;
-    private final KafkaTemplate<String, String> kafkaTemplate;
-    private final ClaudeKafkaProperties properties;
 
-    public ClaudeKafkaListener(
-            ClaudeClient claudeClient, KafkaTemplate<String, String> kafkaTemplate, ClaudeKafkaProperties properties) {
+    public ClaudeKafkaListener(ClaudeClient claudeClient) {
         this.claudeClient = claudeClient;
-        this.kafkaTemplate = kafkaTemplate;
-        this.properties = properties;
     }
 
+    /**
+     * Handles incoming prompt requests and returns the response.
+     *
+     * <p>The {@code @SendTo} annotation automatically sends the return value to the reply topic specified in the
+     * request's reply topic header.
+     *
+     * @param record the incoming Kafka record containing the prompt text
+     * @return the response JSON string
+     */
     @KafkaListener(
             topics = "${claude.code.kafka.request-topic:claude-requests}",
             groupId = "${claude.code.kafka.group-id:claude-processor}",
             concurrency = "${claude.code.kafka.concurrency:1}")
-    public void handleRequest(
-            ConsumerRecord<String, String> record,
-            @Header(name = CorrelationIdManager.CORRELATION_ID_HEADER, required = false) @Nullable
-                    byte[] correlationIdBytes,
-            @Header(name = CorrelationIdManager.REPLY_TOPIC_HEADER, required = false) @Nullable
-                    byte[] replyTopicBytes) {
-
-        var correlationId = correlationIdBytes != null ? new String(correlationIdBytes, StandardCharsets.UTF_8) : null;
-        var replyTopic =
-                replyTopicBytes != null ? new String(replyTopicBytes, StandardCharsets.UTF_8) : properties.replyTopic();
-
+    @SendTo
+    public String handleRequest(ConsumerRecord<String, String> record) {
         try {
-            var prompt = parsePrompt(record.value());
+            var prompt = Prompt.of(record.value());
             var response = claudeClient.execute(prompt, PromptOptions.defaults());
-            sendReply(replyTopic, correlationId, response, null);
+            return buildSuccessReply(response);
         } catch (Exception e) {
-            sendReply(replyTopic, correlationId, null, e);
+            return buildErrorReply(e);
         }
     }
 
-    private Prompt parsePrompt(String value) {
-        return Prompt.of(value);
+    private String buildSuccessReply(ClaudeResponse response) {
+        return "{\"content\":\"" + escapeJson(response.content()) + "\",\"success\":"
+                + response.isSuccess() + ",\"durationMillis\":"
+                + response.duration().toMillis() + "}";
     }
 
-    private void sendReply(
-            String replyTopic,
-            @Nullable String correlationId,
-            @Nullable ClaudeResponse response,
-            @Nullable Exception error) {
-
-        var replyValue = buildReplyValue(response, error);
-        var producerRecord = new ProducerRecord<String, String>(replyTopic, replyValue);
-
-        if (correlationId != null) {
-            producerRecord
-                    .headers()
-                    .add(CorrelationIdManager.CORRELATION_ID_HEADER, correlationId.getBytes(StandardCharsets.UTF_8));
-        }
-
-        if (error != null) {
-            producerRecord.headers().add("error", "true".getBytes(StandardCharsets.UTF_8));
-            producerRecord.headers().add("error-message", error.getMessage().getBytes(StandardCharsets.UTF_8));
-        }
-
-        kafkaTemplate.send(producerRecord);
+    private String buildErrorReply(Exception error) {
+        var message = error.getMessage() != null ? error.getMessage() : "Unknown error";
+        return "{\"error\":\"" + escapeJson(message) + "\"}";
     }
 
-    private String buildReplyValue(@Nullable ClaudeResponse response, @Nullable Exception error) {
-        if (error != null) {
-            return "{\"error\":\"" + escapeJson(error.getMessage()) + "\"}";
+    private String escapeJson(@Nullable String value) {
+        if (value == null) {
+            return "";
         }
-        if (response != null) {
-            return "{\"content\":\"" + escapeJson(response.content()) + "\",\"success\":"
-                    + response.isSuccess() + ",\"durationMillis\":"
-                    + response.duration().toMillis() + "}";
-        }
-        return "{\"error\":\"No response\"}";
-    }
-
-    private String escapeJson(String value) {
         return value.replace("\\", "\\\\")
                 .replace("\"", "\\\"")
                 .replace("\n", "\\n")

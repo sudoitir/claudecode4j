@@ -32,7 +32,6 @@ import ir.sudoit.claudecode4j.api.model.request.Prompt;
 import ir.sudoit.claudecode4j.api.model.request.PromptOptions;
 import ir.sudoit.claudecode4j.api.model.response.TextResponse;
 import ir.sudoit.claudecode4j.kafka.config.ClaudeKafkaProperties;
-import ir.sudoit.claudecode4j.kafka.correlation.CorrelationIdManager;
 import ir.sudoit.claudecode4j.kafka.listener.ClaudeKafkaListener;
 import ir.sudoit.claudecode4j.kafka.producer.ClaudeKafkaProducer;
 import java.time.Duration;
@@ -59,8 +58,9 @@ import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
+import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
+import org.springframework.kafka.requestreply.ReplyingKafkaTemplate;
 import org.springframework.kafka.test.utils.ContainerTestUtils;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -70,7 +70,8 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.kafka.KafkaContainer;
 
 /**
- * Integration tests for Kafka request-reply messaging. Tests the full message flow from producer to listener and back.
+ * Integration tests for Kafka request-reply messaging using ReplyingKafkaTemplate. Tests the full message flow from
+ * producer to listener and back.
  */
 @SpringBootTest(
         classes = {ClaudeKafkaIntegrationTest.BootConfig.class, ClaudeKafkaIntegrationTest.KafkaTestConfig.class})
@@ -154,12 +155,6 @@ class ClaudeKafkaIntegrationTest {
     }
 
     @Test
-    void shouldTrackPendingRequests() {
-        var initialCount = producer.getPendingRequests();
-        assertThat(initialCount).isGreaterThanOrEqualTo(0);
-    }
-
-    @Test
     void shouldUseConfiguredTopics() {
         assertThat(properties.requestTopic()).isEqualTo(REQUEST_TOPIC);
         assertThat(properties.replyTopic()).isEqualTo(REPLY_TOPIC);
@@ -177,11 +172,6 @@ class ClaudeKafkaIntegrationTest {
         ClaudeKafkaProperties claudeKafkaProperties() {
             return new ClaudeKafkaProperties(
                     true, REQUEST_TOPIC, REPLY_TOPIC, "test-processor", Duration.ofSeconds(30), 1);
-        }
-
-        @Bean
-        CorrelationIdManager correlationIdManager(ClaudeKafkaProperties properties) {
-            return new CorrelationIdManager(properties.replyTimeout());
         }
 
         @Bean
@@ -205,32 +195,51 @@ class ClaudeKafkaIntegrationTest {
         }
 
         @Bean
-        KafkaTemplate<String, String> kafkaTemplate(ProducerFactory<String, String> producerFactory) {
-            return new KafkaTemplate<>(producerFactory);
-        }
-
-        @Bean
         ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory(
                 ConsumerFactory<String, String> consumerFactory) {
             var factory = new ConcurrentKafkaListenerContainerFactory<String, String>();
             factory.setConsumerFactory(consumerFactory);
+            factory.setReplyTemplate(kafkaTemplate(producerFactory()));
             return factory;
         }
 
         @Bean
-        ClaudeKafkaListener claudeKafkaListener(
-                ClaudeClient claudeClient,
-                KafkaTemplate<String, String> kafkaTemplate,
+        org.springframework.kafka.core.KafkaTemplate<String, String> kafkaTemplate(
+                ProducerFactory<String, String> producerFactory) {
+            return new org.springframework.kafka.core.KafkaTemplate<>(producerFactory);
+        }
+
+        @Bean
+        ConcurrentMessageListenerContainer<String, String> repliesContainer(
+                ConcurrentKafkaListenerContainerFactory<String, String> containerFactory) {
+            ConcurrentMessageListenerContainer<String, String> container =
+                    containerFactory.createContainer(REPLY_TOPIC);
+            container.getContainerProperties().setGroupId("test-processor-reply");
+            container.setAutoStartup(false);
+            return container;
+        }
+
+        @Bean
+        ReplyingKafkaTemplate<String, String, String> replyingKafkaTemplate(
+                ProducerFactory<String, String> producerFactory,
+                ConcurrentMessageListenerContainer<String, String> repliesContainer,
                 ClaudeKafkaProperties properties) {
-            return new ClaudeKafkaListener(claudeClient, kafkaTemplate, properties);
+            ReplyingKafkaTemplate<String, String, String> template =
+                    new ReplyingKafkaTemplate<>(producerFactory, repliesContainer);
+            template.setDefaultReplyTimeout(properties.replyTimeout());
+            template.setSharedReplyTopic(true);
+            return template;
+        }
+
+        @Bean
+        ClaudeKafkaListener claudeKafkaListener(ClaudeClient claudeClient) {
+            return new ClaudeKafkaListener(claudeClient);
         }
 
         @Bean
         ClaudeKafkaProducer claudeKafkaProducer(
-                KafkaTemplate<String, String> kafkaTemplate,
-                CorrelationIdManager correlationManager,
-                ClaudeKafkaProperties properties) {
-            return new ClaudeKafkaProducer(kafkaTemplate, correlationManager, properties);
+                ReplyingKafkaTemplate<String, String, String> replyingKafkaTemplate, ClaudeKafkaProperties properties) {
+            return new ClaudeKafkaProducer(replyingKafkaTemplate, properties);
         }
 
         @Bean

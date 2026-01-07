@@ -29,7 +29,8 @@ import java.util.concurrent.TimeUnit;
 /**
  * Utility for graceful process termination.
  *
- * <p>Attempts graceful shutdown (SIGTERM) before forcing termination (SIGKILL).
+ * <p>Attempts graceful shutdown (SIGTERM) before forcing termination (SIGKILL). Also handles descendant processes to
+ * prevent orphaned child processes.
  */
 public final class ProcessTerminator {
 
@@ -48,10 +49,10 @@ public final class ProcessTerminator {
     }
 
     /**
-     * Terminates the process gracefully.
+     * Terminates the process and all its descendants gracefully.
      *
      * <p>First attempts graceful termination (SIGTERM on Unix), waits for the grace period, then forces termination
-     * (SIGKILL) if the process is still alive.
+     * (SIGKILL) if the process is still alive. Descendant processes are terminated before the main process.
      *
      * @param process the process to terminate
      * @param gracePeriod the time to wait for graceful shutdown before force killing
@@ -61,9 +62,15 @@ public final class ProcessTerminator {
             return;
         }
 
-        log.log(System.Logger.Level.DEBUG, "Attempting graceful termination of process (PID: {0})", process.pid());
+        log.log(
+                System.Logger.Level.DEBUG,
+                "Attempting graceful termination of process (PID: {0}) and descendants",
+                process.pid());
 
-        // First, try graceful termination (SIGTERM on Unix)
+        // First, gracefully terminate all descendant processes
+        destroyDescendants(process, false);
+
+        // Then, try graceful termination of main process (SIGTERM on Unix)
         process.destroy();
 
         try {
@@ -75,8 +82,13 @@ public final class ProcessTerminator {
                         "Process (PID: {0}) did not exit gracefully within {1}s, forcing termination",
                         process.pid(),
                         gracePeriod.toSeconds());
-                // Force kill if graceful shutdown failed
+
+                // Force kill all remaining descendants
+                destroyDescendants(process, true);
+
+                // Force kill main process
                 process.destroyForcibly();
+
                 // Wait briefly for force kill to complete
                 process.waitFor(1, TimeUnit.SECONDS);
             } else {
@@ -85,8 +97,32 @@ public final class ProcessTerminator {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             log.log(System.Logger.Level.WARNING, "Interrupted while waiting for process termination, forcing kill");
-            // Force kill on interrupt
+            // Force kill everything on interrupt
+            destroyDescendants(process, true);
             process.destroyForcibly();
         }
+    }
+
+    /**
+     * Destroys all descendant processes.
+     *
+     * @param process the parent process
+     * @param forcibly if true, uses destroyForcibly(); otherwise uses destroy()
+     */
+    private static void destroyDescendants(Process process, boolean forcibly) {
+        process.toHandle().descendants().forEach(descendant -> {
+            if (descendant.isAlive()) {
+                log.log(
+                        System.Logger.Level.DEBUG,
+                        "Terminating descendant process (PID: {0}){1}",
+                        descendant.pid(),
+                        forcibly ? " forcibly" : "");
+                if (forcibly) {
+                    descendant.destroyForcibly();
+                } else {
+                    descendant.destroy();
+                }
+            }
+        });
     }
 }

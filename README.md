@@ -1,5 +1,7 @@
 # ClaudeCode4J
 
+> **Bring the agentic power of Claude Code to Java.**
+
 [![English](https://img.shields.io/badge/Language-English-blue)](README.md)
 [![Chinese](https://img.shields.io/badge/Language-中文-red)](README_CN.md)
 [![Persian](https://img.shields.io/badge/Language-فارسی-green)](README_FA.md)

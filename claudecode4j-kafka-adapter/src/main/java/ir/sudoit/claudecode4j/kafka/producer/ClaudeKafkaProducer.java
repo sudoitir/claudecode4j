@@ -24,65 +24,39 @@
 package ir.sudoit.claudecode4j.kafka.producer;
 
 import ir.sudoit.claudecode4j.kafka.config.ClaudeKafkaProperties;
-import ir.sudoit.claudecode4j.kafka.correlation.CorrelationIdManager;
-import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletableFuture;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.requestreply.ReplyingKafkaTemplate;
 
+/**
+ * Producer for sending Claude prompt requests via Kafka with request-reply pattern.
+ *
+ * <p>Uses Spring Kafka's {@link ReplyingKafkaTemplate} for automatic correlation handling, timeout management, and
+ * reply processing.
+ */
 public class ClaudeKafkaProducer {
 
-    private final KafkaTemplate<String, String> kafkaTemplate;
-    private final CorrelationIdManager correlationManager;
+    private final ReplyingKafkaTemplate<String, String, String> replyingTemplate;
     private final ClaudeKafkaProperties properties;
 
     public ClaudeKafkaProducer(
-            KafkaTemplate<String, String> kafkaTemplate,
-            CorrelationIdManager correlationManager,
-            ClaudeKafkaProperties properties) {
-        this.kafkaTemplate = kafkaTemplate;
-        this.correlationManager = correlationManager;
+            ReplyingKafkaTemplate<String, String, String> replyingTemplate, ClaudeKafkaProperties properties) {
+        this.replyingTemplate = replyingTemplate;
         this.properties = properties;
     }
 
+    /**
+     * Sends a prompt request and waits for the reply.
+     *
+     * @param promptText the prompt text to send
+     * @return a CompletableFuture that completes with the response JSON
+     */
     public CompletableFuture<String> sendRequest(String promptText) {
-        var correlationId = correlationManager.generateCorrelationId();
-        var future = correlationManager.registerRequest(correlationId, String.class, properties.replyTimeout());
-
         var record = new ProducerRecord<String, String>(properties.requestTopic(), promptText);
-        record.headers()
-                .add(CorrelationIdManager.CORRELATION_ID_HEADER, correlationId.getBytes(StandardCharsets.UTF_8));
-        record.headers()
-                .add(
-                        CorrelationIdManager.REPLY_TOPIC_HEADER,
-                        properties.replyTopic().getBytes(StandardCharsets.UTF_8));
 
-        kafkaTemplate.send(record).whenComplete((result, error) -> {
-            if (error != null) {
-                correlationManager.failRequest(correlationId, error);
-            }
-        });
-
-        return future;
-    }
-
-    @KafkaListener(
-            topics = "${claude.code.kafka.reply-topic:claude-replies}",
-            groupId = "${claude.code.kafka.group-id:claude-processor}-reply")
-    public void handleReply(ConsumerRecord<String, String> record) {
-        var correlationIdHeader = record.headers().lastHeader(CorrelationIdManager.CORRELATION_ID_HEADER);
-        if (correlationIdHeader == null) {
-            return;
-        }
-
-        var correlationId = new String(correlationIdHeader.value(), StandardCharsets.UTF_8);
-        // Complete with the response body - it contains either success or error as JSON
-        correlationManager.completeRequest(correlationId, record.value());
-    }
-
-    public int getPendingRequests() {
-        return correlationManager.getPendingCount();
+        return replyingTemplate
+                .sendAndReceive(record)
+                .thenApply(consumerRecord -> consumerRecord.value())
+                .toCompletableFuture();
     }
 }

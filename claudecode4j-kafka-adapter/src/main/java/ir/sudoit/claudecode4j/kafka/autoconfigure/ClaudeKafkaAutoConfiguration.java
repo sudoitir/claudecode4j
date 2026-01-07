@@ -25,7 +25,6 @@ package ir.sudoit.claudecode4j.kafka.autoconfigure;
 
 import ir.sudoit.claudecode4j.api.client.ClaudeClient;
 import ir.sudoit.claudecode4j.kafka.config.ClaudeKafkaProperties;
-import ir.sudoit.claudecode4j.kafka.correlation.CorrelationIdManager;
 import ir.sudoit.claudecode4j.kafka.listener.ClaudeKafkaListener;
 import ir.sudoit.claudecode4j.kafka.producer.ClaudeKafkaProducer;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -36,8 +35,18 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.kafka.annotation.EnableKafka;
+import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.core.ProducerFactory;
+import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
+import org.springframework.kafka.requestreply.ReplyingKafkaTemplate;
 
+/**
+ * Auto-configuration for Claude Kafka adapter.
+ *
+ * <p>Configures a request-reply messaging pattern using Spring Kafka's {@link ReplyingKafkaTemplate} for automatic
+ * correlation handling.
+ */
 @AutoConfiguration
 @ConditionalOnClass(KafkaTemplate.class)
 @ConditionalOnBean(ClaudeClient.class)
@@ -48,23 +57,40 @@ public class ClaudeKafkaAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public CorrelationIdManager correlationIdManager(ClaudeKafkaProperties properties) {
-        return new CorrelationIdManager(properties.replyTimeout());
+    public ConcurrentMessageListenerContainer<String, String> claudeRepliesContainer(
+            ConcurrentKafkaListenerContainerFactory<String, String> containerFactory,
+            ClaudeKafkaProperties properties) {
+        ConcurrentMessageListenerContainer<String, String> container =
+                containerFactory.createContainer(properties.replyTopic());
+        container.getContainerProperties().setGroupId(properties.groupId() + "-reply");
+        container.setAutoStartup(false);
+        return container;
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public ClaudeKafkaListener claudeKafkaListener(
-            ClaudeClient claudeClient, KafkaTemplate<String, String> kafkaTemplate, ClaudeKafkaProperties properties) {
-        return new ClaudeKafkaListener(claudeClient, kafkaTemplate, properties);
+    public ReplyingKafkaTemplate<String, String, String> claudeReplyingKafkaTemplate(
+            ProducerFactory<String, String> producerFactory,
+            ConcurrentMessageListenerContainer<String, String> claudeRepliesContainer,
+            ClaudeKafkaProperties properties) {
+        ReplyingKafkaTemplate<String, String, String> template =
+                new ReplyingKafkaTemplate<>(producerFactory, claudeRepliesContainer);
+        template.setDefaultReplyTimeout(properties.replyTimeout());
+        template.setSharedReplyTopic(true);
+        return template;
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ClaudeKafkaListener claudeKafkaListener(ClaudeClient claudeClient) {
+        return new ClaudeKafkaListener(claudeClient);
     }
 
     @Bean
     @ConditionalOnMissingBean
     public ClaudeKafkaProducer claudeKafkaProducer(
-            KafkaTemplate<String, String> kafkaTemplate,
-            CorrelationIdManager correlationManager,
+            ReplyingKafkaTemplate<String, String, String> claudeReplyingKafkaTemplate,
             ClaudeKafkaProperties properties) {
-        return new ClaudeKafkaProducer(kafkaTemplate, correlationManager, properties);
+        return new ClaudeKafkaProducer(claudeReplyingKafkaTemplate, properties);
     }
 }

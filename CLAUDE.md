@@ -24,6 +24,9 @@ mvn test -Dtest=ClaudeRestIntegrationTest
 # Run a single test method
 mvn test -Dtest=ClaudeRestIntegrationTest#shouldExecutePromptAndReturnResponse
 
+# Run tests for a specific module
+mvn test -pl claudecode4j-core
+
 # Run integration tests (requires Docker for Testcontainers)
 mvn verify -Pintegration-tests
 
@@ -67,6 +70,16 @@ switch (response) {
 
 **Concurrency Limiting**: `Semaphore`-based limiting in `DefaultClaudeClient` + AOP `@ConcurrencyLimit` annotation for Spring.
 
+> **Note: Single-JVM Limitation**
+> The built-in concurrency limiting only works within a single JVM instance. In clustered deployments (multiple JVM instances), you need external rate limiting solutions such as Redis-based distributed rate limiting, API Gateway throttling, or database-backed semaphores.
+
+**Binary Resolution Chain**: `CompositeBinaryResolver` chains resolvers in order:
+1. Explicit path from config (`binaryPath`)
+2. `PathBinaryResolver` - searches `PATH` environment variable
+3. `NpmBinaryResolver` - finds npm global installation
+
+**Stdin Mode**: Prompts are passed via stdin (`-p -`) instead of positional arguments to avoid OS ARG_MAX limits and shell escaping issues. See `ClaudeCommandBuilder.buildWithStdin()`.
+
 ### Core Flow
 
 1. `ClaudeClient.execute(Prompt)` sanitizes input via `InputSanitizer`
@@ -83,6 +96,14 @@ Properties prefix: `claude.code.*`
 - `concurrencyLimit` - Max concurrent executions (default: 4)
 - `defaultTimeout` - Execution timeout (default: 5m)
 - `dangerouslySkipPermissions` - Skip permission prompts
+
+## JPMS Modules
+
+Each module has a `module-info.java`. Key exports:
+- `ir.sudoit.claudecode4j.api` exports all public API packages
+- `ir.sudoit.claudecode4j.core` exports implementation, requires `ir.sudoit.claudecode4j.api`
+
+When adding new packages, update the corresponding `module-info.java`.
 
 ## Code Style
 
