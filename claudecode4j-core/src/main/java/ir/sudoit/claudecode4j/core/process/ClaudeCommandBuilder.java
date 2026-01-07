@@ -94,7 +94,7 @@ public final class ClaudeCommandBuilder {
                 command.add(contextFile.toString());
             }
 
-            command.add("--prompt");
+            // Prompt is positional argument (must be last)
             command.add(prompt.text());
         }
 

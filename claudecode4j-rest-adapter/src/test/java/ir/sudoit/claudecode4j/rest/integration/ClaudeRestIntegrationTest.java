@@ -37,8 +37,6 @@ import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -53,8 +51,6 @@ import org.springframework.test.web.reactive.server.WebTestClient;
         classes = ClaudeRestIntegrationTest.TestConfig.class,
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class ClaudeRestIntegrationTest {
-
-    private static final Logger log = LoggerFactory.getLogger(ClaudeRestIntegrationTest.class);
 
     @SpringBootConfiguration
     @EnableAutoConfiguration
@@ -71,24 +67,18 @@ class ClaudeRestIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        log.info("══════════════════════════════════════════════════════════════");
-        log.info("Setting up WebTestClient for http://localhost:{}", port);
         this.webTestClient =
                 WebTestClient.bindToServer().baseUrl("http://localhost:" + port).build();
     }
 
     @Test
     void shouldExecutePromptAndReturnResponse() {
-        log.info("TEST: shouldExecutePromptAndReturnResponse");
-
         // Given: mock ClaudeClient returns a response
         var expectedResponse = new TextResponse(
                 "The answer to 2+2 is 4.", Instant.now(), Duration.ofMillis(500), "haiku", 25, "session-123");
         when(claudeClient.execute(any(Prompt.class), any(PromptOptions.class))).thenReturn(expectedResponse);
-        log.info("  Mock configured: ClaudeClient.execute() -> TextResponse(content='The answer to 2+2 is 4.')");
 
         var request = new PromptRequest("What is 2+2?", null, null, null, null, null, null, null, null, null, null);
-        log.info("  Request: POST /api/claude/prompt with text='What is 2+2?'");
 
         // When & Then: send HTTP POST request and verify response
         webTestClient
@@ -100,31 +90,24 @@ class ClaudeRestIntegrationTest {
                 .expectStatus()
                 .isOk()
                 .expectBody()
-                .consumeWith(result -> log.info(
-                        "  Response: {} - Body: {}", result.getStatus(), new String(result.getResponseBodyContent())))
                 .jsonPath("$.content")
                 .isEqualTo("The answer to 2+2 is 4.")
                 .jsonPath("$.success")
                 .isEqualTo(true)
                 .jsonPath("$.model")
                 .isEqualTo("haiku");
-        log.info("  PASSED: Verified content, success, and model fields");
     }
 
     @Test
     void shouldExecuteAsyncPromptAndReturnResponse() {
-        log.info("TEST: shouldExecuteAsyncPromptAndReturnResponse");
-
         // Given: mock ClaudeClient returns a response asynchronously
         var expectedResponse =
                 new TextResponse("Async result here", Instant.now(), Duration.ofMillis(1000), "haiku", 50, null);
         when(claudeClient.executeAsync(any(Prompt.class), any(PromptOptions.class)))
                 .thenReturn(CompletableFuture.completedFuture(expectedResponse));
-        log.info("  Mock configured: ClaudeClient.executeAsync() -> CompletableFuture<TextResponse>");
 
         var request = new PromptRequest(
                 "Process this asynchronously", null, null, null, null, null, null, null, null, null, null);
-        log.info("  Request: POST /api/claude/prompt/async with text='Process this asynchronously'");
 
         // When & Then: send HTTP POST request to async endpoint
         webTestClient
@@ -136,24 +119,17 @@ class ClaudeRestIntegrationTest {
                 .expectStatus()
                 .isOk()
                 .expectBody()
-                .consumeWith(result -> log.info(
-                        "  Response: {} - Body: {}", result.getStatus(), new String(result.getResponseBodyContent())))
                 .jsonPath("$.content")
                 .isEqualTo("Async result here")
                 .jsonPath("$.success")
                 .isEqualTo(true);
-        log.info("  PASSED: Async endpoint returned expected response");
     }
 
     @Test
     void shouldReturnHealthStatus() {
-        log.info("TEST: shouldReturnHealthStatus");
-
         // Given: mock ClaudeClient reports available
         when(claudeClient.isAvailable()).thenReturn(true);
         when(claudeClient.getCliVersion()).thenReturn("1.2.3");
-        log.info("  Mock configured: isAvailable()=true, getCliVersion()='1.2.3'");
-        log.info("  Request: GET /api/claude/health");
 
         // When & Then: send HTTP GET request to health endpoint
         webTestClient
@@ -163,23 +139,16 @@ class ClaudeRestIntegrationTest {
                 .expectStatus()
                 .isOk()
                 .expectBody()
-                .consumeWith(result -> log.info(
-                        "  Response: {} - Body: {}", result.getStatus(), new String(result.getResponseBodyContent())))
                 .jsonPath("$.available")
                 .isEqualTo(true)
                 .jsonPath("$.version")
                 .isEqualTo("1.2.3");
-        log.info("  PASSED: Health endpoint returned available=true, version=1.2.3");
     }
 
     @Test
     void shouldReturnHealthStatusWhenUnavailable() {
-        log.info("TEST: shouldReturnHealthStatusWhenUnavailable");
-
         // Given: mock ClaudeClient reports unavailable
         when(claudeClient.isAvailable()).thenReturn(false);
-        log.info("  Mock configured: isAvailable()=false");
-        log.info("  Request: GET /api/claude/health");
 
         // When & Then: send HTTP GET request to health endpoint
         webTestClient
@@ -189,21 +158,15 @@ class ClaudeRestIntegrationTest {
                 .expectStatus()
                 .isOk()
                 .expectBody()
-                .consumeWith(result -> log.info(
-                        "  Response: {} - Body: {}", result.getStatus(), new String(result.getResponseBodyContent())))
                 .jsonPath("$.available")
                 .isEqualTo(false)
                 .jsonPath("$.version")
                 .isEqualTo("unknown");
-        log.info("  PASSED: Health endpoint returned available=false, version=unknown");
     }
 
     @Test
     void shouldReturnBadRequestForEmptyPrompt() {
-        log.info("TEST: shouldReturnBadRequestForEmptyPrompt");
-
         var request = new PromptRequest("", null, null, null, null, null, null, null, null, null, null);
-        log.info("  Request: POST /api/claude/prompt with empty text=''");
 
         // When & Then: send HTTP POST request with empty text
         webTestClient
@@ -213,23 +176,16 @@ class ClaudeRestIntegrationTest {
                 .bodyValue(request)
                 .exchange()
                 .expectStatus()
-                .isBadRequest()
-                .expectBody()
-                .consumeWith(result -> log.info("  Response: {} - Validation error expected", result.getStatus()));
-        log.info("  PASSED: Empty prompt correctly rejected with 400 Bad Request");
+                .isBadRequest();
     }
 
     @Test
     void shouldHandleClaudeExecutionException() {
-        log.info("TEST: shouldHandleClaudeExecutionException");
-
         // Given: mock ClaudeClient throws ClaudeExecutionException
         when(claudeClient.execute(any(Prompt.class), any(PromptOptions.class)))
                 .thenThrow(new ClaudeExecutionException(1, "Claude CLI failed"));
-        log.info("  Mock configured: ClaudeClient.execute() throws ClaudeExecutionException(1, 'Claude CLI failed')");
 
         var request = new PromptRequest("This will fail", null, null, null, null, null, null, null, null, null, null);
-        log.info("  Request: POST /api/claude/prompt with text='This will fail'");
 
         // When & Then: send HTTP POST request and verify error response
         webTestClient
@@ -241,22 +197,16 @@ class ClaudeRestIntegrationTest {
                 .expectStatus()
                 .isBadRequest()
                 .expectBody()
-                .consumeWith(result -> log.info(
-                        "  Response: {} - Body: {}", result.getStatus(), new String(result.getResponseBodyContent())))
                 .jsonPath("$.error")
                 .isEqualTo("CLAUDE_EXECUTION_FAILED");
-        log.info("  PASSED: Exception correctly mapped to error response with code CLAUDE_EXECUTION_FAILED");
     }
 
     @Test
     void shouldAcceptPromptWithAllOptions() {
-        log.info("TEST: shouldAcceptPromptWithAllOptions");
-
         // Given: mock ClaudeClient returns a response
         var expectedResponse =
                 new TextResponse("Full options response", Instant.now(), Duration.ofMillis(200), "haiku", 100, null);
         when(claudeClient.execute(any(Prompt.class), any(PromptOptions.class))).thenReturn(expectedResponse);
-        log.info("  Mock configured: ClaudeClient.execute() -> TextResponse");
 
         var request = new PromptRequest(
                 "Complex prompt with options",
@@ -270,12 +220,6 @@ class ClaudeRestIntegrationTest {
                 false,
                 true,
                 4096);
-        log.info("  Request: POST /api/claude/prompt with full options:");
-        log.info("    - text='Complex prompt with options'");
-        log.info("    - systemPrompt='You are a helpful assistant'");
-        log.info("    - workingDirectory='/tmp'");
-        log.info("    - agentName='code-agent'");
-        log.info("    - timeout=60s, model='haiku', maxTokens=4096");
 
         // When & Then: send HTTP POST request with all options
         webTestClient
@@ -287,10 +231,7 @@ class ClaudeRestIntegrationTest {
                 .expectStatus()
                 .isOk()
                 .expectBody()
-                .consumeWith(result -> log.info(
-                        "  Response: {} - Body: {}", result.getStatus(), new String(result.getResponseBodyContent())))
                 .jsonPath("$.content")
                 .isEqualTo("Full options response");
-        log.info("  PASSED: All options accepted and response received");
     }
 }

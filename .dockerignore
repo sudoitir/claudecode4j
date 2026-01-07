@@ -1,0 +1,43 @@
+# Git
+.git
+.gitignore
+
+# IDE
+.idea
+*.iml
+.vscode
+.settings
+.project
+.classpath
+
+# Build output
+target/
+**/target/
+.flattened-pom.xml
+
+# Documentation
+*.md
+!README.md
+LICENSE
+CONTRIBUTING.md
+
+# Docker
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# Claude
+.claude/
+CLAUDE.md
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Test results
+test-results/
+surefire-reports/
