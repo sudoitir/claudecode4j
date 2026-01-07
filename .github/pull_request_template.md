@@ -5,7 +5,6 @@
 ## Type of Change
 
 <!-- Mark the relevant option with an "x" -->
-
 - [ ] Bug fix (non-breaking change that fixes an issue)
 - [ ] New feature (non-breaking change that adds functionality)
 - [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
@@ -23,7 +22,6 @@ Fixes #
 ## Checklist
 
 <!-- Mark completed items with an "x" -->
-
 - [ ] I have read the [CONTRIBUTING](../CONTRIBUTING.md) guidelines
 - [ ] My code follows the project's code style (run `mvn spotless:apply`)
 - [ ] I have added tests that prove my fix/feature works
