@@ -1,24 +1,32 @@
+<div align="center">
+
 # ClaudeCode4J
 
-> **Bring the agentic power of Claude Code to Java.**
+**Bring the agentic power of Claude Code to Java.**
 
-[![English](https://img.shields.io/badge/Language-English-blue)](README.md)
-[![Chinese](https://img.shields.io/badge/Language-中文-red)](README_CN.md)
-[![Persian](https://img.shields.io/badge/Language-فارسی-green)](README_FA.md)
+[English](README.md) • [中文](README_CN.md) • [فارسی](README_FA.md)
 
-A modern Java library for integrating with [Claude Code CLI](https://docs.anthropic.com/en/docs/claude-code) - Anthropic's agentic coding tool.
+<br />
 
-[![Java](https://img.shields.io/badge/Java-25-blue.svg)](https://openjdk.org/projects/jdk/25/)
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.0.1-brightgreen.svg)](https://spring.io/projects/spring-boot)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+<img src="https://img.shields.io/badge/Java-25-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white" alt="Java 25" />
+<img src="https://img.shields.io/badge/Spring_Boot-4.0.1-6DB33F?style=for-the-badge&logo=springboot&logoColor=white" alt="Spring Boot 4.0.1" />
+<img src="https://img.shields.io/badge/License-MIT-blue?style=for-the-badge" alt="License" />
 
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=sudoitir_claudecode4j&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=sudoitir_claudecode4j)
-[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=sudoitir_claudecode4j&metric=bugs)](https://sonarcloud.io/summary/new_code?id=sudoitir_claudecode4j)
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=sudoitir_claudecode4j&metric=coverage)](https://sonarcloud.io/summary/new_code?id=sudoitir_claudecode4j)
-[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=sudoitir_claudecode4j&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=sudoitir_claudecode4j)
-[![CodeQL](https://github.com/sudoitir/claudecode4j/actions/workflows/codeql.yml/badge.svg)](https://github.com/sudoitir/claudecode4j/actions/workflows/codeql.yml)
-[![CI](https://github.com/sudoitir/claudecode4j/actions/workflows/ci.yml/badge.svg)](https://github.com/sudoitir/claudecode4j/actions/workflows/ci.yml)
-[![Integration Tests](https://github.com/sudoitir/claudecode4j/actions/workflows/integration-tests.yml/badge.svg)](https://github.com/sudoitir/claudecode4j/actions/workflows/integration-tests.yml)
+<br />
+<br />
+
+[![CI](https://img.shields.io/github/actions/workflow/status/sudoitir/claudecode4j/ci.yml?branch=main&style=flat-square&label=Build)](https://github.com/sudoitir/claudecode4j/actions/workflows/ci.yml)
+[![Quality Gate Status](https://img.shields.io/sonar/quality_gate/sudoitir_claudecode4j?server=https%3A%2F%2Fsonarcloud.io&style=flat-square)](https://sonarcloud.io/summary/new_code?id=sudoitir_claudecode4j)
+[![Coverage](https://img.shields.io/sonar/coverage/sudoitir_claudecode4j?server=https%3A%2F%2Fsonarcloud.io&style=flat-square)](https://sonarcloud.io/summary/new_code?id=sudoitir_claudecode4j)
+[![Bugs](https://img.shields.io/sonar/bugs/sudoitir_claudecode4j?server=https%3A%2F%2Fsonarcloud.io&style=flat-square)](https://sonarcloud.io/summary/new_code?id=sudoitir_claudecode4j)
+
+</div>
+
+---
+
+<p align="center">
+  <b>A modern Java library for integrating with <a href="https://docs.anthropic.com/en/docs/claude-code">Claude Code CLI</a> — Anthropic's agentic coding tool.</b>
+</p>
 
 ## Features
 
