@@ -66,8 +66,20 @@
           <argLine>--add-opens ir.sudoit.claudecode4j.kafka/ir.sudoit.claudecode4j.kafka.integration=spring.core
                         --add-opens ir.sudoit.claudecode4j.kafka/ir.sudoit.claudecode4j.kafka.integration=spring.beans
                         --add-opens ir.sudoit.claudecode4j.kafka/ir.sudoit.claudecode4j.kafka.integration=spring.context
-                        --add-opens ir.sudoit.claudecode4j.kafka/ir.sudoit.claudecode4j.kafka.integration=spring.test
-                        --add-opens ir.sudoit.claudecode4j.kafka/ir.sudoit.claudecode4j.kafka.integration=org.junit.platform.commons</argLine>
+                        --add-opens ir.sudoit.claudecode4j.kafka/ir.sudoit.claudecode4j.kafka.integration=ALL-UNNAMED</argLine>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <configuration>
+          <excludes>
+            <exclude>**/*E2ETest.java</exclude>
+          </excludes>
+          <argLine>--add-opens ir.sudoit.claudecode4j.kafka/ir.sudoit.claudecode4j.kafka.integration=spring.core
+                        --add-opens ir.sudoit.claudecode4j.kafka/ir.sudoit.claudecode4j.kafka.integration=spring.beans
+                        --add-opens ir.sudoit.claudecode4j.kafka/ir.sudoit.claudecode4j.kafka.integration=spring.context
+                        --add-opens ir.sudoit.claudecode4j.kafka/ir.sudoit.claudecode4j.kafka.integration=ALL-UNNAMED</argLine>
         </configuration>
       </plugin>
     </plugins>

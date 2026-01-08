@@ -10,7 +10,7 @@
 
   <artifactId>claudecode4j-rest-adapter</artifactId>
   <name>ClaudeCode4J REST Adapter</name>
-  <description>REST API adapter for ClaudeCode4J</description>
+  <description>REST API adapter for ClaudeCode4J using Spring Boot</description>
 
   <dependencies>
     <dependency>
@@ -42,11 +42,6 @@
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-webmvc-test</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-webflux</artifactId>
       <scope>test</scope>
     </dependency>
@@ -58,21 +53,53 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
-          <argLine>--add-opens ir.sudoit.claudecode4j.rest/ir.sudoit.claudecode4j.rest.integration=spring.core,spring.beans,spring.context
-                      --add-opens ir.sudoit.claudecode4j.rest/ir.sudoit.claudecode4j.rest.anthropic.integration=spring.core,spring.beans,spring.context
-                      --add-opens ir.sudoit.claudecode4j.rest/ir.sudoit.claudecode4j.rest.openai.integration=spring.core,spring.beans,spring.context
-
-                      --add-opens ir.sudoit.claudecode4j.rest/ir.sudoit.claudecode4j.rest.dto=org.hibernate.validator
-                      --add-opens ir.sudoit.claudecode4j.rest/ir.sudoit.claudecode4j.rest.anthropic.dto.request=org.hibernate.validator
-                      --add-opens ir.sudoit.claudecode4j.rest/ir.sudoit.claudecode4j.rest.openai.dto.request=org.hibernate.validator
-
-                      --add-exports org.hibernate.validator/org.hibernate.validator.internal.constraintvalidators.bv=spring.beans
-                      --add-exports org.hibernate.validator/org.hibernate.validator.internal.constraintvalidators.bv.notempty=spring.beans
-                      --add-exports org.hibernate.validator/org.hibernate.validator.internal.engine=spring.core
-
-                      --add-opens org.hibernate.validator/org.hibernate.validator.internal.constraintvalidators.bv=spring.beans
-                      --add-opens org.hibernate.validator/org.hibernate.validator.internal.constraintvalidators.bv.notempty=spring.beans
-                      --add-opens org.hibernate.validator/org.hibernate.validator.internal.engine=spring.core</argLine>
+          <argLine>--enable-preview
+                        --add-opens ir.sudoit.claudecode4j.rest/ir.sudoit.claudecode4j.rest.integration=spring.core
+                        --add-opens ir.sudoit.claudecode4j.rest/ir.sudoit.claudecode4j.rest.integration=spring.beans
+                        --add-opens ir.sudoit.claudecode4j.rest/ir.sudoit.claudecode4j.rest.integration=spring.context
+                        --add-opens ir.sudoit.claudecode4j.rest/ir.sudoit.claudecode4j.rest.integration=ALL-UNNAMED
+                        --add-opens ir.sudoit.claudecode4j.rest/ir.sudoit.claudecode4j.rest.anthropic.integration=spring.core
+                        --add-opens ir.sudoit.claudecode4j.rest/ir.sudoit.claudecode4j.rest.anthropic.integration=spring.beans
+                        --add-opens ir.sudoit.claudecode4j.rest/ir.sudoit.claudecode4j.rest.anthropic.integration=spring.context
+                        --add-opens ir.sudoit.claudecode4j.rest/ir.sudoit.claudecode4j.rest.anthropic.integration=ALL-UNNAMED
+                        --add-opens ir.sudoit.claudecode4j.rest/ir.sudoit.claudecode4j.rest.openai.integration=spring.core
+                        --add-opens ir.sudoit.claudecode4j.rest/ir.sudoit.claudecode4j.rest.openai.integration=spring.beans
+                        --add-opens ir.sudoit.claudecode4j.rest/ir.sudoit.claudecode4j.rest.openai.integration=spring.context
+                        --add-opens ir.sudoit.claudecode4j.rest/ir.sudoit.claudecode4j.rest.openai.integration=ALL-UNNAMED
+                        --add-opens org.hibernate.validator/org.hibernate.validator.internal.engine=spring.core
+                        --add-opens org.hibernate.validator/org.hibernate.validator.internal.engine=spring.beans
+                        --add-opens org.hibernate.validator/org.hibernate.validator.internal.constraintvalidators.bv=spring.beans
+                        --add-opens org.hibernate.validator/org.hibernate.validator.internal.constraintvalidators.bv.notempty=spring.beans
+                        --add-opens org.hibernate.validator/org.hibernate.validator.internal.constraintvalidators.bv.size=spring.beans
+                        --add-opens org.hibernate.validator/org.hibernate.validator.internal.constraintvalidators.bv.time=spring.beans</argLine>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <configuration>
+          <excludes>
+            <exclude>**/*E2ETest.java</exclude>
+          </excludes>
+          <argLine>--enable-preview
+                        --add-opens ir.sudoit.claudecode4j.rest/ir.sudoit.claudecode4j.rest.integration=spring.core
+                        --add-opens ir.sudoit.claudecode4j.rest/ir.sudoit.claudecode4j.rest.integration=spring.beans
+                        --add-opens ir.sudoit.claudecode4j.rest/ir.sudoit.claudecode4j.rest.integration=spring.context
+                        --add-opens ir.sudoit.claudecode4j.rest/ir.sudoit.claudecode4j.rest.integration=ALL-UNNAMED
+                        --add-opens ir.sudoit.claudecode4j.rest/ir.sudoit.claudecode4j.rest.anthropic.integration=spring.core
+                        --add-opens ir.sudoit.claudecode4j.rest/ir.sudoit.claudecode4j.rest.anthropic.integration=spring.beans
+                        --add-opens ir.sudoit.claudecode4j.rest/ir.sudoit.claudecode4j.rest.anthropic.integration=spring.context
+                        --add-opens ir.sudoit.claudecode4j.rest/ir.sudoit.claudecode4j.rest.anthropic.integration=ALL-UNNAMED
+                        --add-opens ir.sudoit.claudecode4j.rest/ir.sudoit.claudecode4j.rest.openai.integration=spring.core
+                        --add-opens ir.sudoit.claudecode4j.rest/ir.sudoit.claudecode4j.rest.openai.integration=spring.beans
+                        --add-opens ir.sudoit.claudecode4j.rest/ir.sudoit.claudecode4j.rest.openai.integration=spring.context
+                        --add-opens ir.sudoit.claudecode4j.rest/ir.sudoit.claudecode4j.rest.openai.integration=ALL-UNNAMED
+                        --add-opens org.hibernate.validator/org.hibernate.validator.internal.engine=spring.core
+                        --add-opens org.hibernate.validator/org.hibernate.validator.internal.engine=spring.beans
+                        --add-opens org.hibernate.validator/org.hibernate.validator.internal.constraintvalidators.bv=spring.beans
+                        --add-opens org.hibernate.validator/org.hibernate.validator.internal.constraintvalidators.bv.notempty=spring.beans
+                        --add-opens org.hibernate.validator/org.hibernate.validator.internal.constraintvalidators.bv.size=spring.beans
+                        --add-opens org.hibernate.validator/org.hibernate.validator.internal.constraintvalidators.bv.time=spring.beans</argLine>
         </configuration>
       </plugin>
     </plugins>
