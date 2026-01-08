@@ -12,6 +12,14 @@ A modern Java library for integrating with [Claude Code CLI](https://docs.anthro
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.0.1-brightgreen.svg)](https://spring.io/projects/spring-boot)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=sudoitir_claudecode4j&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=sudoitir_claudecode4j)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=sudoitir_claudecode4j&metric=bugs)](https://sonarcloud.io/summary/new_code?id=sudoitir_claudecode4j)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=sudoitir_claudecode4j&metric=coverage)](https://sonarcloud.io/summary/new_code?id=sudoitir_claudecode4j)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=sudoitir_claudecode4j&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=sudoitir_claudecode4j)
+[![CodeQL](https://github.com/sudoitir/claudecode4j/actions/workflows/codeql.yml/badge.svg)](https://github.com/sudoitir/claudecode4j/actions/workflows/codeql.yml)
+[![CI](https://github.com/sudoitir/claudecode4j/actions/workflows/ci.yml/badge.svg)](https://github.com/sudoitir/claudecode4j/actions/workflows/ci.yml)
+[![Integration Tests](https://github.com/sudoitir/claudecode4j/actions/workflows/integration-tests.yml/badge.svg)](https://github.com/sudoitir/claudecode4j/actions/workflows/integration-tests.yml)
+
 ## Features
 
 - **Pure Java API** - Clean interfaces with sealed types and records
