@@ -33,7 +33,7 @@
   </developers>
 
   <properties>
-    <revision>1.0.0-SNAPSHOT</revision>
+    <revision>2026.1.0</revision>
     <spotless.version>3.1.0</spotless.version>
   </properties>
 

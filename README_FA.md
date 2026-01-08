@@ -116,7 +116,7 @@
         <dependency>
             <groupId>io.github.sudoitir</groupId>
             <artifactId>claudecode4j-bom</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <version>2026.1.0</version>
             <type>pom</type>
             <scope>import</scope>
         </dependency>
