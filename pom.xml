@@ -10,6 +10,8 @@
   <name>ClaudeCode4J Parent</name>
   <description>Java wrapper and integrator for Claude CLI</description>
 
+  <url>https://github.com/sudoitir/claudecode4j</url>
+
   <licenses>
     <license>
       <name>MIT License</name>
@@ -389,6 +391,36 @@
             <configuration>
               <skip>false</skip>
             </configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <version>3.3.0</version>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <goals>
+                  <goal>jar-no-fork</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>3.6.3</version>
+            <configuration>
+              <additionalOptions>--enable-preview</additionalOptions>
+              <release>${java.version}</release>
+            </configuration>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
           </plugin>
         </plugins>
       </build>

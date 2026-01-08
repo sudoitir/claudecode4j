@@ -10,6 +10,8 @@
   <name>ClaudeCode4J BOM</name>
   <description>Bill of Materials for ClaudeCode4J library</description>
 
+  <url>https://github.com/sudoitir/claudecode4j</url>
+
   <licenses>
       <license>
           <name>MIT License</name>
@@ -121,6 +123,15 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-gpg-plugin</artifactId>
           <version>3.2.7</version>
+          <executions>
+              <execution>
+                  <id>sign-artifacts</id>
+                  <phase>verify</phase>
+                  <goals>
+                      <goal>sign</goal>
+                  </goals>
+              </execution>
+          </executions>
       </plugin>
       <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -139,6 +150,7 @@
               <publishingServerId>central</publishingServerId>
           </configuration>
       </plugin>
+
     </plugins>
   </build>
 </project>
