@@ -32,13 +32,6 @@
       </developer>
   </developers>
 
-  <distributionManagement>
-      <repository>
-          <id>central</id>
-          <url>https://maven.pkg.github.com/sudoitir/claudecode4j</url>
-      </repository>
-  </distributionManagement>
-
   <properties>
     <revision>1.0.0-SNAPSHOT</revision>
     <spotless.version>3.1.0</spotless.version>

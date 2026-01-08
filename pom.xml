@@ -32,13 +32,6 @@
       </developer>
   </developers>
 
-  <distributionManagement>
-      <repository>
-          <id>central</id>
-          <url>https://maven.pkg.github.com/sudoitir/claudecode4j</url>
-      </repository>
-  </distributionManagement>
-
   <modules>
     <module>claudecode4j-bom</module>
     <module>claudecode4j-api</module>
