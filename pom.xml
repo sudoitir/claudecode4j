@@ -10,6 +10,35 @@
   <name>ClaudeCode4J Parent</name>
   <description>Java wrapper and integrator for Claude CLI</description>
 
+  <licenses>
+      <license>
+          <name>MIT License</name>
+          <url>https://opensource.org/licenses/MIT</url>
+          <distribution>repo</distribution>
+      </license>
+  </licenses>
+
+  <scm>
+      <connection>scm:git:https://github.com/sudoitir/claudecode4j.git</connection>
+      <developerConnection>scm:git:ssh://git@github.com:sudoitir/claudecode4j.git</developerConnection>
+      <url>https://github.com/sudoitir/claudecode4j</url>
+  </scm>
+
+  <developers>
+      <developer>
+          <id>sudoitir</id>
+          <name>Mahdi Amirabdollahi</name>
+          <email>dev@sudoit.ir</email>
+      </developer>
+  </developers>
+
+  <distributionManagement>
+      <repository>
+          <id>central</id>
+          <url>https://maven.pkg.github.com/sudoitir/claudecode4j</url>
+      </repository>
+  </distributionManagement>
+
   <modules>
     <module>claudecode4j-bom</module>
     <module>claudecode4j-api</module>
