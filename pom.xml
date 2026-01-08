@@ -57,10 +57,10 @@
     <jtokkit.version>1.1.0</jtokkit.version>
     <spring-ai.version>1.0.0-M6</spring-ai.version>
     <testcontainers.version>1.20.4</testcontainers.version>
-    <flatten-maven-plugin.version>1.6.0</flatten-maven-plugin.version>
-    <maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
-    <maven-gpg-plugin.version>3.2.4</maven-gpg-plugin.version>
-    <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
+    <flatten-maven-plugin.version>1.7.3</flatten-maven-plugin.version>
+    <maven-surefire-plugin.version>3.5.4</maven-surefire-plugin.version>
+    <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
+    <maven-compiler-plugin.version>3.14.1</maven-compiler-plugin.version>
     <spotless.version>3.1.0</spotless.version>
   </properties>
 
