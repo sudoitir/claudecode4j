@@ -5,7 +5,7 @@
 We actively support the latest stable version of ClaudeCode4J. Security updates are prioritized for the following
 versions:
 
-| Version | Supported          |
+| Version |     Supported      |
 |---------|--------------------|
 | 1.0.x   | :white_check_mark: |
 | < 1.0   | :x:                |
@@ -40,3 +40,4 @@ ClaudeCode4J includes several built-in security features that users should be aw
 * Always run the application with the least privilege necessary.
 * Do not expose the `dangerously-skip-permissions` flag in production environments unless strictly secured.
 * Keep your `claudecode4j` dependency up to date.
+

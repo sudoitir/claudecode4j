@@ -1,4 +1,3 @@
-
 <div align="center">
 
 # ClaudeCode4J
@@ -34,46 +33,46 @@
 - [功能特性](#功能特性)
 - [环境要求](#环境要求)
 - [安装](#安装)
-    - [Maven BOM (推荐)](#maven-bom-推荐)
-    - [核心库 (无 Spring 依赖)](#核心库-无-spring-依赖)
-    - [Spring Boot Starter](#spring-boot-starter)
-    - [REST 适配器](#rest-适配器)
-    - [Kafka 适配器](#kafka-适配器)
-    - [WebSocket 适配器](#websocket-适配器)
-    - [MCP 服务器](#mcp-服务器)
-    - [上下文模块 (Token 优化)](#上下文模块-token-优化)
+  - [Maven BOM (推荐)](#maven-bom-推荐)
+  - [核心库 (无 Spring 依赖)](#核心库-无-spring-依赖)
+  - [Spring Boot Starter](#spring-boot-starter)
+  - [REST 适配器](#rest-适配器)
+  - [Kafka 适配器](#kafka-适配器)
+  - [WebSocket 适配器](#websocket-适配器)
+  - [MCP 服务器](#mcp-服务器)
+  - [上下文模块 (Token 优化)](#上下文模块-token-优化)
 - [快速开始](#快速开始)
-    - [独立使用 (无 Spring)](#独立使用-无-spring)
-    - [异步执行](#异步执行)
-    - [流式传输 (Streaming)](#流式传输-streaming)
-    - [会话管理](#会话管理)
+  - [独立使用 (无 Spring)](#独立使用-无-spring)
+  - [异步执行](#异步执行)
+  - [流式传输 (Streaming)](#流式传输-streaming)
+  - [会话管理](#会话管理)
 - [Spring Boot 集成](#spring-boot-集成)
-    - [配置](#配置)
-    - [自动装配使用](#自动装配使用)
-    - [使用 AOP 限制并发](#使用-aop-限制并发)
+  - [配置](#配置)
+  - [自动装配使用](#自动装配使用)
+  - [使用 AOP 限制并发](#使用-aop-限制并发)
 - [REST API](#rest-api)
-    - [端点](#端点)
-    - [示例请求](#示例请求)
-    - [SSE 流式传输](#sse-流式传输)
+  - [端点](#端点)
+  - [示例请求](#示例请求)
+  - [SSE 流式传输](#sse-流式传输)
 - [OpenAI 兼容 API](#openai-兼容-api)
-    - [配置](#配置-1)
-    - [端点](#端点-1)
-    - [示例请求](#示例请求-1)
-    - [流式传输示例](#流式传输示例)
+  - [配置](#配置-1)
+  - [端点](#端点-1)
+  - [示例请求](#示例请求-1)
+  - [流式传输示例](#流式传输示例)
 - [Anthropic 兼容 API](#anthropic-兼容-api)
-    - [配置](#配置-2)
-    - [端点](#端点-2)
-    - [示例请求](#示例请求-2)
-    - [流式传输示例](#流式传输示例-1)
+  - [配置](#配置-2)
+  - [端点](#端点-2)
+  - [示例请求](#示例请求-2)
+  - [流式传输示例](#流式传输示例-1)
 - [Kafka 集成](#kafka-集成)
-    - [配置](#配置-3)
-    - [生产者 (请求端)](#生产者-请求端)
-    - [消费者 (处理端)](#消费者-处理端)
+  - [配置](#配置-3)
+  - [生产者 (请求端)](#生产者-请求端)
+  - [消费者 (处理端)](#消费者-处理端)
 - [模块结构](#模块结构)
 - [异常处理](#异常处理)
 - [可观测性](#可观测性)
-    - [健康检查](#健康检查)
-    - [指标 (Micrometer)](#指标-micrometer)
+  - [健康检查](#健康检查)
+  - [指标 (Micrometer)](#指标-micrometer)
 - [安全性](#安全性)
 - [从源码构建](#从源码构建)
 - [运行测试](#运行测试)
@@ -341,12 +340,12 @@ claude:
 
 ### 端点
 
-| 方法 | 路径 | 描述 |
-| --- | --- | --- |
-| `POST` | `/api/claude/prompt` | 同步执行提示词 |
-| `POST` | `/api/claude/prompt/async` | 异步执行提示词 |
-| `POST` | `/api/claude/stream` | 通过 SSE 流式传输响应 |
-| `GET` | `/api/claude/health` | 健康检查 |
+|   方法   |             路径             |      描述       |
+|--------|----------------------------|---------------|
+| `POST` | `/api/claude/prompt`       | 同步执行提示词       |
+| `POST` | `/api/claude/prompt/async` | 异步执行提示词       |
+| `POST` | `/api/claude/stream`       | 通过 SSE 流式传输响应 |
+| `GET`  | `/api/claude/health`       | 健康检查          |
 
 ### 示例请求
 
@@ -388,8 +387,8 @@ claude:
 
 ### 端点
 
-| 方法 | 路径 | 描述 |
-| --- | --- | --- |
+|   方法   |           路径           |         描述         |
+|--------|------------------------|--------------------|
 | `POST` | `/v1/chat/completions` | OpenAI 兼容的聊天补全 API |
 
 ### 示例请求
@@ -443,8 +442,8 @@ claude:
 
 ### 端点
 
-| 方法 | 路径 | 描述 |
-| --- | --- | --- |
+|   方法   |       路径       |             描述             |
+|--------|----------------|----------------------------|
 | `POST` | `/v1/messages` | Anthropic 兼容的 Messages API |
 
 ### 示例请求
@@ -609,12 +608,12 @@ try {
 
 ### 指标 (Micrometer)
 
-| 指标 | 类型 | 描述 |
-| --- | --- | --- |
-| `claude.code.executions` | Counter | 总执行次数 |
-| `claude.code.executions.active` | Gauge | 当前正在运行的执行数 |
-| `claude.code.execution.duration` | Timer | 执行耗时 |
-| `claude.code.errors` | Counter | 按类型统计的错误数 |
+|                指标                |   类型    |     描述     |
+|----------------------------------|---------|------------|
+| `claude.code.executions`         | Counter | 总执行次数      |
+| `claude.code.executions.active`  | Gauge   | 当前正在运行的执行数 |
+| `claude.code.execution.duration` | Timer   | 执行耗时       |
+| `claude.code.errors`             | Counter | 按类型统计的错误数  |
 
 ## 安全性
 
@@ -679,3 +678,4 @@ mvn test -Dtest=ClaudeRestIntegrationTest#shouldExecutePromptAndReturnResponse
 * [Anthropic](https://www.anthropic.com/) 提供 Claude 和 Claude Code
 * [Spring Team](https://spring.io/) 提供 Spring Boot 4
 * [Project Loom](https://openjdk.org/projects/loom/) 提供虚拟线程支持
+

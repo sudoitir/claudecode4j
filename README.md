@@ -33,55 +33,55 @@
 - [Features](#features)
 - [Requirements](#requirements)
 - [Installation](#installation)
-    - [Maven BOM (Recommended)](#maven-bom-recommended)
-    - [Core Library (No Spring)](#core-library-no-spring)
-    - [Spring Boot Starter](#spring-boot-starter)
-    - [REST Adapter](#rest-adapter)
-    - [Kafka Adapter](#kafka-adapter)
-    - [WebSocket Adapter](#websocket-adapter)
-    - [MCP Server](#mcp-server)
-    - [Context Module (Token Optimization)](#context-module-token-optimization)
+  - [Maven BOM (Recommended)](#maven-bom-recommended)
+  - [Core Library (No Spring)](#core-library-no-spring)
+  - [Spring Boot Starter](#spring-boot-starter)
+  - [REST Adapter](#rest-adapter)
+  - [Kafka Adapter](#kafka-adapter)
+  - [WebSocket Adapter](#websocket-adapter)
+  - [MCP Server](#mcp-server)
+  - [Context Module (Token Optimization)](#context-module-token-optimization)
 - [Quick Start](#quick-start)
-    - [Standalone Usage (No Spring)](#standalone-usage-no-spring)
-    - [Async Execution](#async-execution)
-    - [Streaming](#streaming)
-    - [Session Management](#session-management)
+  - [Standalone Usage (No Spring)](#standalone-usage-no-spring)
+  - [Async Execution](#async-execution)
+  - [Streaming](#streaming)
+  - [Session Management](#session-management)
 - [Spring Boot Integration](#spring-boot-integration)
-    - [Configuration](#configuration)
-    - [Auto-wired Usage](#auto-wired-usage)
-    - [Concurrency Limiting with AOP](#concurrency-limiting-with-aop)
+  - [Configuration](#configuration)
+  - [Auto-wired Usage](#auto-wired-usage)
+  - [Concurrency Limiting with AOP](#concurrency-limiting-with-aop)
 - [REST API](#rest-api)
-    - [Endpoints](#endpoints)
-    - [Example Request](#example-request)
-    - [SSE Streaming](#sse-streaming)
+  - [Endpoints](#endpoints)
+  - [Example Request](#example-request)
+  - [SSE Streaming](#sse-streaming)
 - [OpenAI-Compatible API](#openai-compatible-api)
-    - [Configuration](#configuration-1)
-    - [Endpoints](#endpoints-1)
-    - [Example Request](#example-request-1)
-    - [Streaming Example](#streaming-example)
-    - [Response Format (Non-Streaming)](#response-format-non-streaming)
-    - [Streaming Format](#streaming-format)
+  - [Configuration](#configuration-1)
+  - [Endpoints](#endpoints-1)
+  - [Example Request](#example-request-1)
+  - [Streaming Example](#streaming-example)
+  - [Response Format (Non-Streaming)](#response-format-non-streaming)
+  - [Streaming Format](#streaming-format)
 - [Anthropic-Compatible API](#anthropic-compatible-api)
-    - [Configuration](#configuration-2)
-    - [Endpoints](#endpoints-2)
-    - [Example Request](#example-request-2)
-    - [Streaming Example](#streaming-example-1)
-    - [Response Format (Non-Streaming)](#response-format-non-streaming-1)
-    - [Streaming Format](#streaming-format-1)
+  - [Configuration](#configuration-2)
+  - [Endpoints](#endpoints-2)
+  - [Example Request](#example-request-2)
+  - [Streaming Example](#streaming-example-1)
+  - [Response Format (Non-Streaming)](#response-format-non-streaming-1)
+  - [Streaming Format](#streaming-format-1)
 - [Kafka Integration](#kafka-integration)
-    - [Configuration](#configuration-3)
-    - [Producer (Request Side)](#producer-request-side)
-    - [Consumer (Processing Side)](#consumer-processing-side)
+  - [Configuration](#configuration-3)
+  - [Producer (Request Side)](#producer-request-side)
+  - [Consumer (Processing Side)](#consumer-processing-side)
 - [Module Structure](#module-structure)
 - [Exception Handling](#exception-handling)
 - [Observability](#observability)
-    - [Health Check](#health-check)
-    - [Metrics (Micrometer)](#metrics-micrometer)
+  - [Health Check](#health-check)
+  - [Metrics (Micrometer)](#metrics-micrometer)
 - [Security](#security)
 - [Building from Source](#building-from-source)
 - [Running Tests](#running-tests)
-    - [Test Profiles](#test-profiles)
-    - [Test Categories](#test-categories)
+  - [Test Profiles](#test-profiles)
+  - [Test Categories](#test-categories)
 - [Contributing](#contributing)
 - [License](#license)
 - [Acknowledgments](#acknowledgments)
@@ -346,12 +346,12 @@ claude:
 
 ### Endpoints
 
-| Method | Path | Description |
-| --- | --- | --- |
-| `POST` | `/api/claude/prompt` | Execute prompt synchronously |
+| Method |            Path            |          Description          |
+|--------|----------------------------|-------------------------------|
+| `POST` | `/api/claude/prompt`       | Execute prompt synchronously  |
 | `POST` | `/api/claude/prompt/async` | Execute prompt asynchronously |
-| `POST` | `/api/claude/stream` | Stream response via SSE |
-| `GET` | `/api/claude/health` | Health check |
+| `POST` | `/api/claude/stream`       | Stream response via SSE       |
+| `GET`  | `/api/claude/health`       | Health check                  |
 
 ### Example Request
 
@@ -393,8 +393,8 @@ claude:
 
 ### Endpoints
 
-| Method | Path | Description |
-| --- | --- | --- |
+| Method |          Path          |              Description               |
+|--------|------------------------|----------------------------------------|
 | `POST` | `/v1/chat/completions` | OpenAI-compatible chat completions API |
 
 ### Example Request
@@ -486,8 +486,8 @@ claude:
 
 ### Endpoints
 
-| Method | Path | Description |
-| --- | --- | --- |
+| Method |      Path      |            Description            |
+|--------|----------------|-----------------------------------|
 | `POST` | `/v1/messages` | Anthropic-compatible Messages API |
 
 ### Example Request
@@ -698,12 +698,12 @@ try {
 
 ### Metrics (Micrometer)
 
-| Metric | Type | Description |
-| --- | --- | --- |
-| `claude.code.executions` | Counter | Total executions |
-| `claude.code.executions.active` | Gauge | Currently running |
-| `claude.code.execution.duration` | Timer | Execution time |
-| `claude.code.errors` | Counter | Error count by type |
+|              Metric              |  Type   |     Description     |
+|----------------------------------|---------|---------------------|
+| `claude.code.executions`         | Counter | Total executions    |
+| `claude.code.executions.active`  | Gauge   | Currently running   |
+| `claude.code.execution.duration` | Timer   | Execution time      |
+| `claude.code.errors`             | Counter | Error count by type |
 
 ## Security
 
@@ -768,3 +768,4 @@ This project is licensed under the MIT License - see the [LICENSE](https://www.g
 * [Anthropic](https://www.anthropic.com/) for Claude and Claude Code
 * [Spring Team](https://spring.io/) for Spring Boot 4
 * [Project Loom](https://openjdk.org/projects/loom/) for Virtual Threads
+

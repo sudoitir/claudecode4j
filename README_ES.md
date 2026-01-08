@@ -340,12 +340,12 @@ claude:
 
 ### Endpoints
 
-| Método | Ruta | Descripción |
-| --- | --- | --- |
-| `POST` | `/api/claude/prompt` | Ejecutar prompt síncronamente |
+| Método |            Ruta            |          Descripción           |
+|--------|----------------------------|--------------------------------|
+| `POST` | `/api/claude/prompt`       | Ejecutar prompt síncronamente  |
 | `POST` | `/api/claude/prompt/async` | Ejecutar prompt asíncronamente |
-| `POST` | `/api/claude/stream` | Stream de respuesta vía SSE |
-| `GET` | `/api/claude/health` | Comprobación de salud |
+| `POST` | `/api/claude/stream`       | Stream de respuesta vía SSE    |
+| `GET`  | `/api/claude/health`       | Comprobación de salud          |
 
 ### Ejemplo de Petición
 
@@ -387,8 +387,8 @@ claude:
 
 ### Endpoints
 
-| Método | Ruta | Descripción |
-| --- | --- | --- |
+| Método |          Ruta          |                  Descripción                  |
+|--------|------------------------|-----------------------------------------------|
 | `POST` | `/v1/chat/completions` | API de chat completions compatible con OpenAI |
 
 ### Ejemplo de Petición
@@ -442,8 +442,8 @@ claude:
 
 ### Endpoints
 
-| Método | Ruta | Descripción |
-| --- | --- | --- |
+| Método |      Ruta      |              Descripción              |
+|--------|----------------|---------------------------------------|
 | `POST` | `/v1/messages` | API Messages compatible con Anthropic |
 
 ### Ejemplo de Petición
@@ -608,12 +608,12 @@ try {
 
 ### Métricas (Micrometer)
 
-| Métrica | Tipo | Descripción |
-| --- | --- | --- |
-| `claude.code.executions` | Counter | Total ejecuciones |
-| `claude.code.executions.active` | Gauge | Ejecuciones activas |
-| `claude.code.execution.duration` | Timer | Tiempo de ejecución |
-| `claude.code.errors` | Counter | Errores por tipo |
+|             Métrica              |  Tipo   |     Descripción     |
+|----------------------------------|---------|---------------------|
+| `claude.code.executions`         | Counter | Total ejecuciones   |
+| `claude.code.executions.active`  | Gauge   | Ejecuciones activas |
+| `claude.code.execution.duration` | Timer   | Tiempo de ejecución |
+| `claude.code.errors`             | Counter | Errores por tipo    |
 
 ## Seguridad
 
@@ -667,3 +667,4 @@ Este proyecto está licenciado bajo la Licencia MIT - ver el archivo [LICENSE](h
 * [Anthropic](https://www.anthropic.com/) por Claude y Claude Code
 * [Spring Team](https://spring.io/) por Spring Boot 4
 * [Project Loom](https://openjdk.org/projects/loom/) por los Hilos Virtuales
+
