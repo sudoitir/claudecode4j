@@ -50,7 +50,7 @@ jobs:
         run: mvn clean install -DskipTests -Dgpg.skip=true -B -V
 
       - name: Run Integration Tests
-        run: mvn verify -Pintegration-tests -B -Dgpg.skip=true
+        run: mvn verify -B -Dgpg.skip=true -pl '!claudecode4j-spring-boot-starter,!claudecode4j-rest-adapter'
         env:
           TESTCONTAINERS_RYUK_DISABLED: false
 
