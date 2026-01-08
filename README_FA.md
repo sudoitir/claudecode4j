@@ -1,9 +1,87 @@
 <div dir="rtl">
+<div align="center">
 
 # ClaudeCode4J
 
-یک کتابخانه مدرن جاوا برای ادغام با [Claude Code CLI](https://docs.anthropic.com/en/docs/claude-code) - ابزار کدنویسی
-هوشمند Anthropic.
+**قدرت عاملی Claude Code را به جاوا بیاورید.**
+
+[English](README.md) • [中文](README_CN.md) • [فارسی](README_FA.md) • [Español](README_ES.md)
+
+<br />
+
+<img src="https://img.shields.io/badge/Java-25-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white" alt="Java 25" />
+<img src="https://img.shields.io/badge/Spring_Boot-4.0.1-6DB33F?style=for-the-badge&logo=springboot&logoColor=white" alt="Spring Boot 4.0.1" />
+<img src="https://img.shields.io/badge/License-MIT-blue?style=for-the-badge" alt="License" />
+
+<br />
+<br />
+
+[![CI](https://img.shields.io/github/actions/workflow/status/sudoitir/claudecode4j/ci.yml?branch=main&style=flat-square&label=Build)](https://github.com/sudoitir/claudecode4j/actions/workflows/ci.yml)
+[![Quality Gate Status](https://img.shields.io/sonar/quality_gate/sudoitir_claudecode4j?server=https%3A%2F%2Fsonarcloud.io&style=flat-square)](https://sonarcloud.io/summary/new_code?id=sudoitir_claudecode4j)
+[![Coverage](https://img.shields.io/sonar/coverage/sudoitir_claudecode4j?server=https%3A%2F%2Fsonarcloud.io&style=flat-square)](https://sonarcloud.io/summary/new_code?id=sudoitir_claudecode4j)
+[![Bugs](https://img.shields.io/sonar/bugs/sudoitir_claudecode4j?server=https%3A%2F%2Fsonarcloud.io&style=flat-square)](https://sonarcloud.io/summary/new_code?id=sudoitir_claudecode4j)
+
+</div>
+
+---
+
+<p align="center">
+  <b>یک کتابخانه مدرن جاوا برای ادغام با <a href="https://docs.anthropic.com/en/docs/claude-code">Claude Code CLI</a> — ابزار کدنویسی عاملی Anthropic.</b>
+</p>
+
+## فهرست مطالب
+
+- [ویژگی‌ها](#ویژگی‌ها)
+- [پیش‌نیازها](#پیش‌نیازها)
+- [نصب](#نصب)
+    - [Maven BOM (توصیه شده)](#maven-bom-توصیه-شده)
+    - [کتابخانه هسته (بدون Spring)](#کتابخانه-هسته-بدون-spring)
+    - [Spring Boot Starter](#spring-boot-starter)
+    - [آداپتور REST](#آداپتور-rest)
+    - [آداپتور Kafka](#آداپتور-kafka)
+    - [آداپتور WebSocket](#آداپتور-websocket)
+    - [سرور MCP](#سرور-mcp)
+    - [ماژول کانتکست (بهینه‌سازی توکن)](#ماژول-کانتکست-بهینه‌سازی-توکن)
+- [شروع سریع](#شروع-سریع)
+    - [استفاده مستقل (بدون Spring)](#استفاده-مستقل-بدون-spring)
+    - [اجرای غیرهمگام (Async)](#اجرای-غیرهمگام-async)
+    - [استریمینگ (Streaming)](#استریمینگ-streaming)
+    - [مدیریت نشست (Session)](#مدیریت-نشست-session)
+- [ادغام با Spring Boot](#ادغام-با-spring-boot)
+    - [پیکربندی](#پیکربندی)
+    - [استفاده با تزریق وابستگی (Auto-wired)](#استفاده-با-تزریق-وابستگی-auto-wired)
+    - [محدودسازی همزمانی با AOP](#محدودسازی-همزمانی-با-aop)
+- [REST API](#rest-api)
+    - [اندپوینت‌ها](#اندپوینت‌ها)
+    - [نمونه درخواست](#نمونه-درخواست)
+    - [استریمینگ با SSE](#استریمینگ-با-sse)
+- [API سازگار با OpenAI](#api-سازگار-با-openai)
+    - [پیکربندی](#پیکربندی-1)
+    - [اندپوینت‌ها](#اندپوینت‌ها-1)
+    - [نمونه درخواست](#نمونه-درخواست-1)
+    - [نمونه استریمینگ](#نمونه-استریمینگ)
+- [API سازگار با Anthropic](#api-سازگار-با-anthropic)
+    - [پیکربندی](#پیکربندی-2)
+    - [اندپوینت‌ها](#اندپوینت‌ها-2)
+    - [نمونه درخواست](#نمونه-درخواست-2)
+    - [نمونه استریمینگ](#نمونه-استریمینگ-1)
+- [ادغام با Kafka](#ادغام-با-kafka)
+    - [پیکربندی](#پیکربندی-3)
+    - [تولیدکننده (سمت درخواست)](#تولیدکننده-سمت-درخواست)
+    - [مصرف‌کننده (سمت پردازش)](#مصرف‌کننده-سمت-پردازش)
+- [ساختار ماژول‌ها](#ساختار-ماژول‌ها)
+- [مدیریت خطاها](#مدیریت-خطاها-exception-handling)
+- [قابلیت مشاهده (Observability)](#قابلیت-مشاهده-observability)
+    - [بررسی سلامت (Health Check)](#بررسی-سلامت-health-check)
+    - [متریک‌ها (Micrometer)](#متریک‌ها-micrometer)
+- [امنیت](#امنیت)
+- [ساخت از سورس کد](#ساخت-از-سورس-کد)
+- [اجرای تست‌ها](#اجرای-تست‌ها)
+- [مشارکت](#مشارکت)
+- [لایسنس](#لایسنس)
+- [تقدیر و تشکر](#تقدیر-و-تشکر)
+
+---
 
 ## ویژگی‌ها
 
@@ -13,6 +91,10 @@
 * **ادغام با Spring Boot 4** - تنظیمات خودکار (Auto-configuration)، بررسی سلامت (Health checks) و متریک‌ها
 * **آداپتور REST API** - اندپوینت‌های HTTP با پشتیبانی از SSE streaming
 * **آداپتور Kafka** - الگوی درخواست-پاسخ با استفاده از correlation IDs
+* **ترمینال WebSocket** - نشست‌های تعاملی با پشتیبانی از انسان-در-حلقه (human-in-the-loop)
+* **سرور MCP** - ارائه متدهای جاوا به عنوان ابزارهای Claude از طریق Model Context Protocol
+* **کانتکست هوشمند** - بهینه‌سازی کانتکست با آگاهی از توکن‌ها با استفاده از JTokkit
+* **تاب‌آوری (Resilience)** - تلاش مجدد داخلی با الگوی exponential backoff
 * **آماده برای JPMS** - پشتیبانی کامل از سیستم ماژولار پلتفرم جاوا
 * **Null-Safe** - استفاده سراسری از انوتیشن‌های JSpecify
 
@@ -95,6 +177,48 @@
 <dependency>
     <groupId>io.github.sudoitir</groupId>
     <artifactId>claudecode4j-kafka-adapter</artifactId>
+</dependency>
+
+```
+
+</div>
+
+### آداپتور WebSocket
+
+<div dir="ltr">
+
+```xml
+<dependency>
+    <groupId>io.github.sudoitir</groupId>
+    <artifactId>claudecode4j-websocket-adapter</artifactId>
+</dependency>
+
+```
+
+</div>
+
+### سرور MCP
+
+<div dir="ltr">
+
+```xml
+<dependency>
+    <groupId>io.github.sudoitir</groupId>
+    <artifactId>claudecode4j-mcp-server</artifactId>
+</dependency>
+
+```
+
+</div>
+
+### ماژول کانتکست (بهینه‌سازی توکن)
+
+<div dir="ltr">
+
+```xml
+<dependency>
+    <groupId>io.github.sudoitir</groupId>
+    <artifactId>claudecode4j-context</artifactId>
 </dependency>
 
 ```
@@ -225,9 +349,9 @@ public class CodeAssistantService {
 
     public String analyzeCode(String code) {
         Prompt prompt = Prompt.builder()
-                .text("Analyze this code for potential issues:\n" + code)
-                .outputFormat(OutputFormat.TEXT)
-                .build();
+            .text("Analyze this code for potential issues:\n" + code)
+            .outputFormat(OutputFormat.TEXT)
+            .build();
 
         ClaudeResponse response = claudeClient.execute(prompt);
         return switch (response) {
@@ -281,12 +405,12 @@ claude:
 
 ### اندپوینت‌ها
 
-|  متد   |            مسیر            |         توضیحات         |
-|--------|----------------------------|-------------------------|
-| `POST` | `/api/claude/prompt`       | اجرای همگام پرامپت      |
-| `POST` | `/api/claude/prompt/async` | اجرای غیرهمگام پرامپت   |
-| `POST` | `/api/claude/stream`       | استریم پاسخ از طریق SSE |
-| `GET`  | `/api/claude/health`       | بررسی سلامت سرویس       |
+| متد | مسیر | توضیحات |
+| --- | --- | --- |
+| `POST` | `/api/claude/prompt` | اجرای همگام پرامپت |
+| `POST` | `/api/claude/prompt/async` | اجرای غیرهمگام پرامپت |
+| `POST` | `/api/claude/stream` | استریم پاسخ از طریق SSE |
+| `GET` | `/api/claude/health` | بررسی سلامت سرویس |
 
 ### نمونه درخواست
 
@@ -313,6 +437,142 @@ curl -X POST http://localhost:8080/api/claude/prompt \
 curl -N http://localhost:8080/api/claude/stream \
   -H "Content-Type: application/json" \
   -d '{"text": "Explain microservices architecture"}'
+
+```
+
+</div>
+
+## API سازگار با OpenAI
+
+آداپتور REST شامل یک اندپوینت `/v1/chat/completions` **سازگار با OpenAI** است که به ابزارها و برنامه‌های طراحی شده برای API‌های OpenAI اجازه می‌دهد با Claude Code CLI کار کنند.
+
+### پیکربندی
+
+<div dir="ltr">
+
+```yaml
+claude:
+  code:
+    rest:
+      openai:
+        enabled: true                    # فعال‌سازی اندپوینت سازگار با OpenAI (پیش‌فرض: true)
+        base-path: /v1                   # مسیر پایه اندپوینت‌های OpenAI (پیش‌فرض: /v1)
+
+```
+
+</div>
+
+### اندپوینت‌ها
+
+| متد | مسیر | توضیحات |
+| --- | --- | --- |
+| `POST` | `/v1/chat/completions` | API تکمیل گفتگو (Chat Completion) سازگار با OpenAI |
+
+### نمونه درخواست
+
+<div dir="ltr">
+
+```bash
+curl -X POST http://localhost:8080/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "claude-3-5-sonnet-20241022",
+    "messages": [
+      {"role": "system", "content": "You are a helpful assistant."},
+      {"role": "user", "content": "Write a hello world in Rust"}
+    ],
+    "max_tokens": 1000,
+    "temperature": 0.7,
+    "stream": false
+  }'
+
+```
+
+</div>
+
+### نمونه استریمینگ
+
+<div dir="ltr">
+
+```bash
+curl -X POST http://localhost:8080/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "claude-3-5-sonnet-20241022",
+    "messages": [
+      {"role": "user", "content": "Explain quantum computing"}
+    ],
+    "stream": true
+  }'
+
+```
+
+</div>
+
+## API سازگار با Anthropic
+
+آداپتور REST همچنین شامل یک اندپوینت `/v1/messages` **سازگار با Anthropic** است که از مشخصات API پیام‌های Anthropic پیروی می‌کند.
+
+### پیکربندی
+
+<div dir="ltr">
+
+```yaml
+claude:
+  code:
+    rest:
+      anthropic:
+        enabled: true                    # فعال‌سازی اندپوینت سازگار با Anthropic (پیش‌فرض: true)
+        base-path: /v1                   # مسیر پایه اندپوینت‌های Anthropic (پیش‌فرض: /v1)
+
+```
+
+</div>
+
+### اندپوینت‌ها
+
+| متد | مسیر | توضیحات |
+| --- | --- | --- |
+| `POST` | `/v1/messages` | API پیام‌های (Messages API) سازگار با Anthropic |
+
+### نمونه درخواست
+
+<div dir="ltr">
+
+```bash
+curl -X POST http://localhost:8080/v1/messages \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: not-required" \
+  -H "anthropic-version: 2023-06-01" \
+  -d '{
+    "model": "claude-3-5-sonnet-20241022",
+    "max_tokens": 1000,
+    "system": "You are a helpful assistant.",
+    "messages": [
+      {"role": "user", "content": "Write a hello world in Rust"}
+    ],
+    "stream": false
+  }'
+
+```
+
+</div>
+
+### نمونه استریمینگ
+
+<div dir="ltr">
+
+```bash
+curl -X POST http://localhost:8080/v1/messages \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "claude-3-5-sonnet-20241022",
+    "max_tokens": 1000,
+    "messages": [
+      {"role": "user", "content": "Explain reactive programming"}
+    ],
+    "stream": true
+  }'
 
 ```
 
@@ -382,18 +642,32 @@ claudecode4j/
 │   ├── process/                      # VirtualThreadExecutor
 │   ├── parser/                       # StreamJsonParser
 │   └── resolver/                     # Binary resolvers
+├── claudecode4j-context/             # بهینه‌سازی کانتکست با آگاهی از توکن
+│   ├── spi/                          # TokenCounter, ContextOptimizer
+│   ├── model/                        # ContextBudget, ModelTokenLimits
+│   ├── tokenizer/                    # پیاده‌سازی JTokkit
+│   └── optimizer/                    # DefaultContextOptimizer
 ├── claudecode4j-spring-boot-starter/ # ادغام با Spring Boot
 │   ├── autoconfigure/                # پیکربندی خودکار
 │   ├── properties/                   # مشخصات پیکربندی
 │   ├── health/                       # شاخص سلامت
-│   └── metrics/                      # متریک‌های Micrometer
+│   ├── metrics/                      # متریک‌های Micrometer
+│   └── resilience/                   # تلاش مجدد با backoff
 ├── claudecode4j-rest-adapter/        # REST API
 │   ├── controller/                   # ClaudeController
 │   └── dto/                          # Request/Response DTOs
-└── claudecode4j-kafka-adapter/       # پیام‌رسانی Kafka
-    ├── listener/                     # مصرف‌کننده پیام
-    ├── producer/                     # تولیدکننده درخواست
-    └── correlation/                  # مدیریت شناسه Correlation
+├── claudecode4j-kafka-adapter/       # پیام‌رسانی Kafka
+│   ├── listener/                     # مصرف‌کننده پیام
+│   ├── producer/                     # تولیدکننده درخواست
+│   └── correlation/                  # مدیریت شناسه Correlation
+├── claudecode4j-websocket-adapter/   # ترمینال WebSocket
+│   ├── handler/                      # هندلر WebSocket
+│   ├── session/                      # مدیریت نشست
+│   └── message/                      # انواع پیام‌های sealed
+└── claudecode4j-mcp-server/          # پشتیبانی سرور MCP
+    ├── annotation/                   # @ClaudeTool, @ToolParam
+    ├── registry/                     # کشف ابزار
+    └── server/                       # فراخوانی ابزار
 
 ```
 
@@ -447,12 +721,12 @@ try {
 
 ### متریک‌ها (Micrometer)
 
-|              متریک               |   نوع   |          توضیحات           |
-|----------------------------------|---------|----------------------------|
-| `claude.code.executions`         | Counter | تعداد کل اجراها            |
-| `claude.code.executions.active`  | Gauge   | تعداد اجراهای در حال انجام |
-| `claude.code.execution.duration` | Timer   | زمان اجرا                  |
-| `claude.code.errors`             | Counter | تعداد خطاها بر اساس نوع    |
+| متریک | نوع | توضیحات |
+| --- | --- | --- |
+| `claude.code.executions` | Counter | تعداد کل اجراها |
+| `claude.code.executions.active` | Gauge | تعداد اجراهای در حال انجام |
+| `claude.code.execution.duration` | Timer | زمان اجرا |
+| `claude.code.errors` | Counter | تعداد خطاها بر اساس نوع |
 
 ## امنیت
 
@@ -467,7 +741,7 @@ try {
 <div dir="ltr">
 
 ```bash
-git clone https://github.com/sudoit/claudecode4j.git
+git clone [https://github.com/sudoit/claudecode4j.git](https://github.com/sudoit/claudecode4j.git)
 cd claudecode4j
 mvn clean install
 
@@ -477,22 +751,44 @@ mvn clean install
 
 ## اجرای تست‌ها
 
+### پروفایل‌های تست
+
 <div dir="ltr">
 
 ```bash
-# تست‌های واحد
+# تست‌های واحد فقط (پیش‌فرض - سریع، بدون وابستگی خارجی)
 mvn test
 
 # تست‌های یکپارچه (نیاز به Docker برای Testcontainers)
-mvn verify -Pintegration-tests
+mvn verify -Pintegration
+
+# تمام تست‌ها شامل E2E (نیاز به نصب Claude CLI و احراز هویت)
+mvn verify -Pall
+
+# اجرای کلاس تست خاص
+mvn test -Dtest=ClaudeRestIntegrationTest
+
+# اجرای متد تست خاص
+mvn test -Dtest=ClaudeRestIntegrationTest#shouldExecutePromptAndReturnResponse
 
 ```
 
 </div>
 
+### دسته‌بندی تست‌ها
+
+* **تست‌های واحد** (`*Test.java`): تست‌های سریع و ایزوله با وابستگی‌های ماک شده
+* **تست‌های یکپارچه** (`*IntegrationTest.java`): تست‌ها با کانتینرهای واقعی (Testcontainers)
+* **تست‌های E2E** (`*E2ETest.java`): تست‌های کامل سمت کاربر که به Claude CLI نیاز دارند
+
+**توجه**: تست‌های E2E باید فقط به صورت دستی اجرا شوند. آنها نیاز دارند به:
+
+* نصب بودن Claude CLI: `npm install -g @anthropic-ai/claude-code`
+* احراز هویت شده بودن Claude CLI (یکبار اجرای `claude` برای احراز هویت)
+
 ## مشارکت
 
-مشارکت‌ها استقبال می‌شوند! لطفاً برای جزئیات بیشتر [راهنمای مشارکت](CONTRIBUTING.md) را مطالعه کنید.
+مشارکت‌ها استقبال می‌شوند! لطفاً برای جزئیات بیشتر [راهنمای مشارکت](https://www.google.com/search?q=CONTRIBUTING.md) را مطالعه کنید.
 
 ## لایسنس
 
@@ -505,4 +801,3 @@ mvn verify -Pintegration-tests
 * [Project Loom](https://openjdk.org/projects/loom/) برای Virtual Threads
 
 </div>
-

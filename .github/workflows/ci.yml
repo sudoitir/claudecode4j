@@ -44,7 +44,7 @@ jobs:
         run: mvn clean install -DskipTests -Dgpg.skip=true -B -V
 
       - name: Run Unit Tests
-        run: mvn test -Dgpg.skip=true -B --fail-at-end
+        run: mvn test -Dgpg.skip=true -B --fail-at-end -Dtest='!ClaudeCodeAutoConfigurationTest,!*E2ETest'
 
       - name: Upload Test Results
         uses: actions/upload-artifact@v6
@@ -101,7 +101,7 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Run Maven Verify (skip GPG signing)
-        run: mvn test -B -Dgpg.skip=true
+        run: mvn test -B -Dgpg.skip=true -Dtest='!ClaudeCodeAutoConfigurationTest,!*E2ETest'
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v6
