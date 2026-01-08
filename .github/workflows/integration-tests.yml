@@ -50,7 +50,7 @@ jobs:
         run: mvn clean install -DskipTests -Dgpg.skip=true -B -V
 
       - name: Run Integration Tests
-        run: mvn verify -B -Dgpg.skip=true -pl '!claudecode4j-spring-boot-starter,!claudecode4j-rest-adapter'
+        run: mvn verify -Pintegration -B -Dgpg.skip=true
         env:
           TESTCONTAINERS_RYUK_DISABLED: false
 
@@ -92,7 +92,7 @@ jobs:
         run: mvn clean install -DskipTests -Dgpg.skip=true -B -V
 
       - name: Run Kafka Module Tests
-        run: mvn test -pl claudecode4j-kafka-adapter -Dgpg.skip=true -B --fail-at-end
+        run: mvn verify -Pintegration -pl claudecode4j-kafka-adapter -Dgpg.skip=true -B --fail-at-end
         env:
           TESTCONTAINERS_RYUK_DISABLED: false
 

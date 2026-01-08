@@ -52,4 +52,30 @@
     </dependency>
   </dependencies>
 
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <argLine>--add-opens ir.sudoit.claudecode4j.rest/ir.sudoit.claudecode4j.rest.integration=spring.core,spring.beans,spring.context
+                      --add-opens ir.sudoit.claudecode4j.rest/ir.sudoit.claudecode4j.rest.anthropic.integration=spring.core,spring.beans,spring.context
+                      --add-opens ir.sudoit.claudecode4j.rest/ir.sudoit.claudecode4j.rest.openai.integration=spring.core,spring.beans,spring.context
+
+                      --add-opens ir.sudoit.claudecode4j.rest/ir.sudoit.claudecode4j.rest.dto=org.hibernate.validator
+                      --add-opens ir.sudoit.claudecode4j.rest/ir.sudoit.claudecode4j.rest.anthropic.dto.request=org.hibernate.validator
+                      --add-opens ir.sudoit.claudecode4j.rest/ir.sudoit.claudecode4j.rest.openai.dto.request=org.hibernate.validator
+
+                      --add-exports org.hibernate.validator/org.hibernate.validator.internal.constraintvalidators.bv=spring.beans
+                      --add-exports org.hibernate.validator/org.hibernate.validator.internal.constraintvalidators.bv.notempty=spring.beans
+                      --add-exports org.hibernate.validator/org.hibernate.validator.internal.engine=spring.core
+
+                      --add-opens org.hibernate.validator/org.hibernate.validator.internal.constraintvalidators.bv=spring.beans
+                      --add-opens org.hibernate.validator/org.hibernate.validator.internal.constraintvalidators.bv.notempty=spring.beans
+                      --add-opens org.hibernate.validator/org.hibernate.validator.internal.engine=spring.core</argLine>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
 </project>

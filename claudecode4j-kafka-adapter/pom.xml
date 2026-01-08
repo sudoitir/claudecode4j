@@ -47,14 +47,30 @@
     </dependency>
     <dependency>
       <groupId>org.testcontainers</groupId>
-      <artifactId>kafka</artifactId>
+      <artifactId>testcontainers-kafka</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.testcontainers</groupId>
-      <artifactId>junit-jupiter</artifactId>
+      <artifactId>testcontainers-junit-jupiter</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <argLine>--add-opens ir.sudoit.claudecode4j.kafka/ir.sudoit.claudecode4j.kafka.integration=spring.core
+                        --add-opens ir.sudoit.claudecode4j.kafka/ir.sudoit.claudecode4j.kafka.integration=spring.beans
+                        --add-opens ir.sudoit.claudecode4j.kafka/ir.sudoit.claudecode4j.kafka.integration=spring.context
+                        --add-opens ir.sudoit.claudecode4j.kafka/ir.sudoit.claudecode4j.kafka.integration=spring.test
+                        --add-opens ir.sudoit.claudecode4j.kafka/ir.sudoit.claudecode4j.kafka.integration=org.junit.platform.commons</argLine>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 
 </project>

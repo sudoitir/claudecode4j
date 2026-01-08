@@ -24,13 +24,16 @@
 package ir.sudoit.claudecode4j.rest.autoconfigure;
 
 import ir.sudoit.claudecode4j.api.client.ClaudeClient;
+import ir.sudoit.claudecode4j.rest.anthropic.controller.AnthropicMessagesController;
 import ir.sudoit.claudecode4j.rest.controller.ClaudeController;
+import ir.sudoit.claudecode4j.rest.openai.controller.OpenAiChatController;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.servlet.DispatcherServlet;
 
@@ -39,11 +42,34 @@ import org.springframework.web.servlet.DispatcherServlet;
 @ConditionalOnClass(DispatcherServlet.class)
 @ConditionalOnBean(ClaudeClient.class)
 @ConditionalOnProperty(prefix = "claude.code.rest", name = "enabled", havingValue = "true", matchIfMissing = true)
+@EnableConfigurationProperties(ClaudeCodeRestProperties.class)
 public class ClaudeCodeRestAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
     public ClaudeController claudeController(ClaudeClient claudeClient) {
         return new ClaudeController(claudeClient);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    @ConditionalOnProperty(
+            prefix = "claude.code.rest.openai",
+            name = "enabled",
+            havingValue = "true",
+            matchIfMissing = true)
+    public OpenAiChatController openAiChatController(ClaudeClient claudeClient) {
+        return new OpenAiChatController(claudeClient);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    @ConditionalOnProperty(
+            prefix = "claude.code.rest.anthropic",
+            name = "enabled",
+            havingValue = "true",
+            matchIfMissing = true)
+    public AnthropicMessagesController anthropicMessagesController(ClaudeClient claudeClient) {
+        return new AnthropicMessagesController(claudeClient);
     }
 }

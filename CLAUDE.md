@@ -15,7 +15,7 @@ mvn clean install
 # Build without tests
 mvn clean install -DskipTests
 
-# Run unit tests only
+# Run unit tests only (excludes integration and E2E tests)
 mvn test
 
 # Run a single test class
@@ -28,7 +28,10 @@ mvn test -Dtest=ClaudeRestIntegrationTest#shouldExecutePromptAndReturnResponse
 mvn test -pl claudecode4j-core
 
 # Run integration tests (requires Docker for Testcontainers)
-mvn verify -Pintegration-tests
+mvn verify -Pintegration
+
+# Run all tests including E2E (requires Claude CLI installed and authenticated)
+mvn verify -Pall
 
 # Format code (Spotless with Palantir Java Format)
 mvn spotless:apply
@@ -45,8 +48,11 @@ mvn spotless:check
 - **claudecode4j-api**: Interfaces, DTOs, and SPIs (no implementation)
 - **claudecode4j-core**: Pure Java implementation (no Spring dependency)
 - **claudecode4j-spring-boot-starter**: Spring Boot 4 auto-configuration
-- **claudecode4j-rest-adapter**: REST/SSE endpoints
+- **claudecode4j-rest-adapter**: REST/SSE endpoints with OpenAI and Anthropic API compatibility
 - **claudecode4j-kafka-adapter**: Kafka request-reply messaging
+- **claudecode4j-websocket-adapter**: WebSocket terminal for interactive sessions
+- **claudecode4j-mcp-server**: MCP Server support for exposing Java methods as Claude tools
+- **claudecode4j-context**: Token-aware context optimization using JTokkit
 
 ### Key Design Patterns
 
@@ -96,6 +102,23 @@ Properties prefix: `claude.code.*`
 - `concurrencyLimit` - Max concurrent executions (default: 4)
 - `defaultTimeout` - Execution timeout (default: 5m)
 - `dangerouslySkipPermissions` - Skip permission prompts
+- `enabled` - Enable/disable auto-configuration (default: true)
+- `health.enabled` - Enable health indicator (default: true)
+- `metrics.enabled` - Enable Micrometer metrics (default: true)
+- `mock.enabled` - Enable mock client for testing (default: false)
+- `mock.response` - Static mock response
+- `mock.delay` - Artificial delay for mock responses
+- `resilience.enabled` - Enable retry with exponential backoff (default: false)
+- `resilience.maxRetries` - Maximum retry attempts (default: 3)
+- `resilience.initialDelay` - Initial retry delay (default: 1s)
+- `resilience.multiplier` - Backoff multiplier (default: 2.0)
+- `resilience.maxDelay` - Maximum retry delay (default: 30s)
+
+REST adapter properties (`claude.code.rest.*`):
+- `enabled` - Enable REST endpoints (default: true)
+- `basePath` - Base path for REST endpoints (default: `/api/claude`)
+- `openai.enabled` - Enable OpenAI-compatible endpoints (default: true)
+- `anthropic.enabled` - Enable Anthropic API endpoints (default: true)
 
 ## JPMS Modules
 
@@ -115,10 +138,28 @@ When adding new packages, update the corresponding `module-info.java`.
 
 ## Testing
 
-- Unit tests use JUnit 5 + Mockito
-- Integration tests use `@SpringBootTest` with `@MockitoBean`
-- Kafka tests use Testcontainers
-- E2E tests require Claude CLI to be installed and authenticated
+### Test Categories
+
+- **Unit Tests** (`*Test.java`): Fast, isolated tests with mocked dependencies
+- **Integration Tests** (`*IntegrationTest.java`): Tests with real containers (Testcontainers)
+- **E2E Tests** (`*E2ETest.java`): Full end-to-end tests requiring Claude CLI
+
+### Running Tests
+
+```bash
+# Unit tests only (default - fast, no external dependencies)
+mvn test
+
+# Integration tests (requires Docker for Testcontainers)
+mvn verify -Pintegration
+
+# All tests including E2E (requires Claude CLI installation and authentication)
+mvn verify -Pall
+```
+
+**Note**: E2E tests should only be run manually. They require:
+- Claude CLI installed: `npm install -g @anthropic-ai/claude-code`
+- Claude CLI authenticated (run `claude` once to authenticate)
 
 ## Docker
 

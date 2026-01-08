@@ -1,5 +1,8 @@
 module ir.sudoit.claudecode4j.core {
     uses ir.sudoit.claudecode4j.api.spi.BinaryResolver;
+    uses ir.sudoit.claudecode4j.api.spi.InputSanitizer;
+    uses ir.sudoit.claudecode4j.api.spi.ProcessExecutor;
+    uses ir.sudoit.claudecode4j.api.spi.OutputParser;
 
     requires ir.sudoit.claudecode4j.api;
     requires static org.jspecify;

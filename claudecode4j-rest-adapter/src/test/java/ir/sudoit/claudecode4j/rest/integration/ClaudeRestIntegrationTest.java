@@ -31,31 +31,22 @@ import ir.sudoit.claudecode4j.api.exception.ClaudeExecutionException;
 import ir.sudoit.claudecode4j.api.model.request.Prompt;
 import ir.sudoit.claudecode4j.api.model.request.PromptOptions;
 import ir.sudoit.claudecode4j.api.model.response.TextResponse;
+import ir.sudoit.claudecode4j.rest.config.IntegrationTestConfig;
 import ir.sudoit.claudecode4j.rest.dto.PromptRequest;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.SpringBootConfiguration;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 /** Integration tests for the Claude REST API. Tests the full HTTP request/response flow with mocked ClaudeClient. */
-@SpringBootTest(
-        classes = ClaudeRestIntegrationTest.TestConfig.class,
-        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = IntegrationTestConfig.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class ClaudeRestIntegrationTest {
-
-    @SpringBootConfiguration
-    @EnableAutoConfiguration
-    @ComponentScan(basePackages = "ir.sudoit.claudecode4j.rest")
-    static class TestConfig {}
 
     @LocalServerPort
     private int port;

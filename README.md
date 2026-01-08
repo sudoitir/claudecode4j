@@ -28,7 +28,65 @@
   <b>A modern Java library for integrating with <a href="https://docs.anthropic.com/en/docs/claude-code">Claude Code CLI</a> — Anthropic's agentic coding tool.</b>
 </p>
 
-## Features
+## Table of Contents
+
+- [Features](#features)
+- [Requirements](#requirements)
+- [Installation](#installation)
+  - [Maven BOM (Recommended)](#maven-bom-recommended)
+  - [Core Library (No Spring)](#core-library-no-spring)
+  - [Spring Boot Starter](#spring-boot-starter)
+  - [REST Adapter](#rest-adapter)
+  - [Kafka Adapter](#kafka-adapter)
+  - [WebSocket Adapter](#websocket-adapter)
+  - [MCP Server](#mcp-server)
+  - [Context Module (Token Optimization)](#context-module-token-optimization)
+- [Quick Start](#quick-start)
+  - [Standalone Usage (No Spring)](#standalone-usage-no-spring)
+  - [Async Execution](#async-execution)
+  - [Streaming](#streaming)
+  - [Session Management](#session-management)
+- [Spring Boot Integration](#spring-boot-integration)
+  - [Configuration](#configuration)
+  - [Auto-wired Usage](#auto-wired-usage)
+  - [Concurrency Limiting with AOP](#concurrency-limiting-with-aop)
+- [REST API](#rest-api)
+  - [Endpoints](#endpoints)
+  - [Example Request](#example-request)
+  - [SSE Streaming](#sse-streaming)
+- [OpenAI-Compatible API](#openai-compatible-api)
+  - [Configuration](#configuration-1)
+  - [Endpoints](#endpoints-1)
+  - [Example Request](#example-request-1)
+  - [Streaming Example](#streaming-example)
+  - [Response Format (Non-Streaming)](#response-format-non-streaming)
+  - [Streaming Format](#streaming-format)
+- [Anthropic-Compatible API](#anthropic-compatible-api)
+  - [Configuration](#configuration-2)
+  - [Endpoints](#endpoints-2)
+  - [Example Request](#example-request-2)
+  - [Streaming Example](#streaming-example-1)
+  - [Response Format (Non-Streaming)](#response-format-non-streaming-1)
+  - [Streaming Format](#streaming-format-1)
+- [Kafka Integration](#kafka-integration)
+  - [Configuration](#configuration-3)
+  - [Producer (Request Side)](#producer-request-side)
+  - [Consumer (Processing Side)](#consumer-processing-side)
+- [Module Structure](#module-structure)
+- [Exception Handling](#exception-handling)
+- [Observability](#observability)
+  - [Health Check](#health-check)
+  - [Metrics (Micrometer)](#metrics-micrometer)
+- [Security](#security)
+- [Building from Source](#building-from-source)
+- [Running Tests](#running-tests)
+  - [Test Profiles](#test-profiles)
+  - [Test Categories](#test-categories)
+- [Contributing](#contributing)
+- [License](#license)
+- [Acknowledgments](#acknowledgments)
+
+---
 
 - **Pure Java API** - Clean interfaces with sealed types and records
 - **Virtual Threads** - Efficient concurrent execution using Project Loom
@@ -297,6 +355,192 @@ curl -N http://localhost:8080/api/claude/stream \
   -d '{"text": "Explain microservices architecture"}'
 ```
 
+## OpenAI-Compatible API
+
+The REST adapter includes an **OpenAI-compatible** `/v1/chat/completions` endpoint, allowing tools and applications designed for OpenAI's API to work with Claude Code CLI.
+
+### Configuration
+
+```yaml
+claude:
+  code:
+    rest:
+      openai:
+        enabled: true                    # Enable OpenAI-compatible endpoint (default: true)
+        base-path: /v1                   # Base path for OpenAI endpoints (default: /v1)
+```
+
+### Endpoints
+
+| Method |          Path          |              Description               |
+|--------|------------------------|----------------------------------------|
+| `POST` | `/v1/chat/completions` | OpenAI-compatible chat completions API |
+
+### Example Request
+
+```bash
+curl -X POST http://localhost:8080/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "claude-3-5-sonnet-20241022",
+    "messages": [
+      {"role": "system", "content": "You are a helpful assistant."},
+      {"role": "user", "content": "Write a hello world in Rust"}
+    ],
+    "max_tokens": 1000,
+    "temperature": 0.7,
+    "stream": false
+  }'
+```
+
+### Streaming Example
+
+```bash
+curl -X POST http://localhost:8080/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "claude-3-5-sonnet-20241022",
+    "messages": [
+      {"role": "user", "content": "Explain quantum computing"}
+    ],
+    "stream": true
+  }'
+```
+
+### Response Format (Non-Streaming)
+
+```json
+{
+  "id": "chatcmpl-abc123",
+  "object": "chat.completion",
+  "created": 1234567890,
+  "model": "claude-3-5-sonnet-20241022",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "Hello, World! in Rust:\n\nfn main() {\n    println!(\"Hello, World!\");\n}"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 20,
+    "completion_tokens": 30,
+    "total_tokens": 50
+  }
+}
+```
+
+### Streaming Format
+
+```
+data: {"id":"chatcmpl-abc123","object":"chat.completion.chunk","created":1234567890,"model":"claude-3-5-sonnet-20241022","choices":[{"index":0,"delta":{"content":"Hello"},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-abc123","object":"chat.completion.chunk","created":1234567890,"model":"claude-3-5-sonnet-20241022","choices":[{"index":0,"delta":{"content": " World!"},"finish_reason":null}]}
+
+data: [DONE]
+```
+
+## Anthropic-Compatible API
+
+The REST adapter also includes an **Anthropic-compatible** `/v1/messages` endpoint, following Anthropic's Messages API specification.
+
+### Configuration
+
+```yaml
+claude:
+  code:
+    rest:
+      anthropic:
+        enabled: true                    # Enable Anthropic-compatible endpoint (default: true)
+        base-path: /v1                   # Base path for Anthropic endpoints (default: /v1)
+```
+
+### Endpoints
+
+| Method |      Path      |            Description            |
+|--------|----------------|-----------------------------------|
+| `POST` | `/v1/messages` | Anthropic-compatible Messages API |
+
+### Example Request
+
+```bash
+curl -X POST http://localhost:8080/v1/messages \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: not-required" \
+  -H "anthropic-version: 2023-06-01" \
+  -d '{
+    "model": "claude-3-5-sonnet-20241022",
+    "max_tokens": 1000,
+    "system": "You are a helpful assistant.",
+    "messages": [
+      {"role": "user", "content": "Write a hello world in Rust"}
+    ],
+    "stream": false
+  }'
+```
+
+### Streaming Example
+
+```bash
+curl -X POST http://localhost:8080/v1/messages \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "claude-3-5-sonnet-20241022",
+    "max_tokens": 1000,
+    "messages": [
+      {"role": "user", "content": "Explain reactive programming"}
+    ],
+    "stream": true
+  }'
+```
+
+### Response Format (Non-Streaming)
+
+```json
+{
+  "id": "msg_abc123",
+  "type": "message",
+  "role": "assistant",
+  "content": [
+    {
+      "type": "text",
+      "text": "Here is a hello world in Rust:\n\nfn main() {\n    println!(\"Hello, World!\");\n}"
+    }
+  ],
+  "model": "claude-3-5-sonnet-20241022",
+  "stop_reason": "end_turn",
+  "usage": {
+    "input_tokens": 15,
+    "output_tokens": 25
+  }
+}
+```
+
+### Streaming Format
+
+```
+event: message_start
+data: {"type":"message_start","message":{"id":"msg_abc123","type":"message","role":"assistant","content":[]}}
+
+event: content_block_start
+data: {"type":"content_block_start","index":0}
+
+event: content_block_delta
+data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"Here is"}}
+
+event: content_block_stop
+data: {"type":"content_block_stop","index":0}
+
+event: message_delta
+data: {"type":"message_delta","delta":{"stop_reason":"end_turn"},"usage":{"output_tokens":25}}
+
+event: message_stop
+data: {"type":"message_stop"}
+```
+
 ## Kafka Integration
 
 Enable request-reply messaging over Kafka:
@@ -348,18 +592,32 @@ claudecode4j/
 │   ├── process/                      # VirtualThreadExecutor
 │   ├── parser/                       # StreamJsonParser
 │   └── resolver/                     # Binary resolvers
+├── claudecode4j-context/             # Token-aware context optimization
+│   ├── spi/                          # TokenCounter, ContextOptimizer
+│   ├── model/                        # ContextBudget, ModelTokenLimits
+│   ├── tokenizer/                    # JTokkit implementation
+│   └── optimizer/                    # DefaultContextOptimizer
 ├── claudecode4j-spring-boot-starter/ # Spring Boot integration
 │   ├── autoconfigure/                # Auto-configuration
 │   ├── properties/                   # ConfigurationProperties
 │   ├── health/                       # HealthIndicator
-│   └── metrics/                      # Micrometer metrics
+│   ├── metrics/                      # Micrometer metrics
+│   └── resilience/                   # Retry with backoff
 ├── claudecode4j-rest-adapter/        # REST API
 │   ├── controller/                   # ClaudeController
 │   └── dto/                          # Request/Response DTOs
-└── claudecode4j-kafka-adapter/       # Kafka messaging
-    ├── listener/                     # Message consumer
-    ├── producer/                     # Request producer
-    └── correlation/                  # Correlation ID manager
+├── claudecode4j-kafka-adapter/       # Kafka messaging
+│   ├── listener/                     # Message consumer
+│   ├── producer/                     # Request producer
+│   └── correlation/                  # Correlation ID manager
+├── claudecode4j-websocket-adapter/   # WebSocket terminal
+│   ├── handler/                      # WebSocket handler
+│   ├── session/                      # Session management
+│   └── message/                      # Sealed message types
+└── claudecode4j-mcp-server/          # MCP Server support
+    ├── annotation/                   # @ClaudeTool, @ToolParam
+    ├── registry/                     # Tool discovery
+    └── server/                       # Tool invocation
 ```
 
 ## Exception Handling
@@ -429,13 +687,34 @@ mvn clean install
 
 ## Running Tests
 
+### Test Profiles
+
 ```bash
-# Unit tests
+# Unit tests only (default - fast, no external dependencies)
 mvn test
 
 # Integration tests (requires Docker for Testcontainers)
-mvn verify -Pintegration-tests
+mvn verify -Pintegration
+
+# All tests including E2E (requires Claude CLI installation and authentication)
+mvn verify -Pall
+
+# Run specific test class
+mvn test -Dtest=ClaudeRestIntegrationTest
+
+# Run specific test method
+mvn test -Dtest=ClaudeRestIntegrationTest#shouldExecutePromptAndReturnResponse
 ```
+
+### Test Categories
+
+- **Unit Tests** (`*Test.java`): Fast, isolated tests with mocked dependencies
+- **Integration Tests** (`*IntegrationTest.java`): Tests with real containers (Testcontainers)
+- **E2E Tests** (`*E2ETest.java`): Full end-to-end tests requiring Claude CLI
+
+**Note**: E2E tests should only be run manually. They require:
+- Claude CLI installed: `npm install -g @anthropic-ai/claude-code`
+- Claude CLI authenticated (run `claude` once to authenticate)
 
 ## Contributing
 

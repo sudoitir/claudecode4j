@@ -21,15 +21,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package ir.sudoit.claudecode4j.rest.e2e;
+package ir.sudoit.claudecode4j.rest.openai.e2e;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import ir.sudoit.claudecode4j.api.client.ClaudeClient;
 import ir.sudoit.claudecode4j.rest.config.E2ETestConfig;
-import ir.sudoit.claudecode4j.rest.dto.PromptRequest;
+import ir.sudoit.claudecode4j.rest.openai.dto.request.ChatCompletionRequest;
+import ir.sudoit.claudecode4j.rest.openai.dto.request.ChatMessage;
+import ir.sudoit.claudecode4j.rest.streaming.SseTestUtils;
 import java.time.Duration;
+import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -44,8 +47,10 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 /**
- * End-to-End tests that invoke the REAL Claude CLI. These tests require Claude CLI to be installed and authenticated.
- * Run with: mvn test -Dgroups=e2e Skip with: mvn test -DexcludedGroups=e2e
+ * End-to-End tests for the OpenAI Chat Completions API that invoke the REAL Claude CLI. These tests require Claude CLI
+ * to be installed and authenticated.
+ *
+ * <p>Run with: mvn test -Dgroups=e2e -Pall Skip with: mvn test -DexcludedGroups=e2e
  */
 @Tag("e2e")
 @SpringBootTest(classes = E2ETestConfig.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -55,9 +60,9 @@ import org.springframework.test.web.reactive.server.WebTestClient;
             "claude.code.dangerously-skip-permissions=true",
             "claude.code.default-timeout=2m"
         })
-class ClaudeRestE2ETest {
+class OpenAiChatE2ETest {
 
-    private static final Logger log = LoggerFactory.getLogger(ClaudeRestE2ETest.class);
+    private static final Logger log = LoggerFactory.getLogger(OpenAiChatE2ETest.class);
 
     @LocalServerPort
     private int port;
@@ -70,7 +75,7 @@ class ClaudeRestE2ETest {
     @BeforeAll
     static void checkClaudeCliAvailable() {
         log.info("╔══════════════════════════════════════════════════════════════╗");
-        log.info("║           ClaudeCode4J E2E Tests - Real Claude CLI           ║");
+        log.info("║           ClaudeCode4J OpenAI E2E Tests - Real Claude CLI      ║");
         log.info("╚══════════════════════════════════════════════════════════════╝");
     }
 
@@ -96,30 +101,31 @@ class ClaudeRestE2ETest {
     }
 
     @Test
-    void shouldExecuteRealPromptViaRest() {
-        log.info("TEST: shouldExecuteRealPromptViaRest");
-        log.info("  Sending real prompt to Claude CLI via REST API...");
+    void shouldExecuteRealNonStreamingChatCompletion() {
+        log.info("TEST: shouldExecuteRealNonStreamingChatCompletion");
+        log.info("  Sending real chat completion request to Claude CLI via OpenAI endpoint...");
 
-        var request = new PromptRequest(
-                "What is 2+2? Reply with just the number.",
-                null,
-                null,
-                null,
-                null,
-                60L,
-                "TEXT",
+        var request = new ChatCompletionRequest(
+                List.of(new ChatMessage("user", "What is 2+2? Reply with just the number.", null, null, null)),
                 "haiku",
-                true, // dangerouslySkipPermissions - REQUIRED for non-interactive
-                true,
-                null); // no maxTurns limit
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                false,
+                null,
+                null,
+                null);
 
-        log.info("  Request: POST /api/claude/prompt");
-        log.info("    text: 'What is 2+2? Reply with just the number.'");
-        log.info("    model: haiku, timeout: 60s, printMode: true");
+        log.info("  Request: POST /v1/chat/completions");
+        log.info("    model: haiku");
+        log.info("    messages: user message");
 
         var response = webTestClient
                 .post()
-                .uri("/api/claude/prompt")
+                .uri("/v1/chat/completions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(request)
                 .exchange()
@@ -132,38 +138,93 @@ class ClaudeRestE2ETest {
         log.info("  Response received: {}", response);
 
         assertThat(response).isNotNull();
-        assertThat(response).contains("\"success\":true");
-        assertThat(response).contains("\"content\":");
-        // The response should contain "4" somewhere in the content
+        assertThat(response).contains("\"object\":\"chat.completion\"");
+        assertThat(response).contains("\"model\":");
+        assertThat(response).contains("\"choices\"");
         assertThat(response).containsIgnoringCase("4");
 
-        log.info("  PASSED: Real Claude CLI invoked successfully via REST");
+        log.info("  PASSED: Real Claude CLI invoked successfully via OpenAI endpoint");
     }
 
     @Test
-    void shouldExecuteRealAsyncPromptViaRest() {
-        log.info("TEST: shouldExecuteRealAsyncPromptViaRest");
-        log.info("  Sending real async prompt to Claude CLI via REST API...");
+    void shouldExecuteRealStreamingChatCompletion() {
+        log.info("TEST: shouldExecuteRealStreamingChatCompletion");
+        log.info("  Sending real streaming chat completion request to Claude CLI...");
 
-        var request = new PromptRequest(
-                "What is the capital of France? Reply with just the city name.",
-                null,
-                null,
-                null,
-                null,
-                60L,
-                "TEXT",
+        var request = new ChatCompletionRequest(
+                List.of(new ChatMessage("user", "Count from 1 to 3, one number per line.", null, null, null)),
                 "haiku",
-                true, // dangerouslySkipPermissions - REQUIRED for non-interactive
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
                 true,
-                null); // no maxTurns limit
+                null,
+                null,
+                null);
 
-        log.info("  Request: POST /api/claude/prompt/async");
-        log.info("    text: 'What is the capital of France? Reply with just the city name.'");
+        log.info("  Request: POST /v1/chat/completions (stream=true)");
+
+        var responseSpec = webTestClient
+                .post()
+                .uri("/v1/chat/completions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(request)
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectHeader()
+                .contentType("text/event-stream");
+
+        // Collect SSE events
+        var events = SseTestUtils.consumeSseStream(responseSpec);
+
+        log.info("  Received {} SSE events", events.size());
+
+        // Verify SSE format compliance
+        SseTestUtils.verifyOpenAiFormat(events);
+
+        // Verify specific SSE format requirements
+        boolean foundDataPrefix = events.stream().anyMatch(e -> e.trim().startsWith("data:"));
+        boolean foundDone = events.stream().anyMatch(e -> e.contains("[DONE]"));
+        boolean foundHeartbeat = events.stream().anyMatch(e -> e.trim().startsWith(":"));
+
+        assertThat(foundDataPrefix).as("Should have data: prefix in events").isTrue();
+        assertThat(foundDone).as("Should have [DONE] marker").isTrue();
+        assertThat(foundHeartbeat).as("Should have heartbeat comments").isTrue();
+
+        log.info("  PASSED: Real streaming chat completion with full SSE compliance");
+    }
+
+    @Test
+    void shouldExecuteRealChatWithSystemMessage() {
+        log.info("TEST: shouldExecuteRealChatWithSystemMessage");
+        log.info("  Sending real chat with system message...");
+
+        var request = new ChatCompletionRequest(
+                List.of(
+                        new ChatMessage("system", "You are a math assistant. Be concise.", null, null, null),
+                        new ChatMessage("user", "What is 3+3? Reply with just the number.", null, null, null)),
+                "haiku",
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                false,
+                null,
+                null,
+                null);
+
+        log.info("  Request: POST /v1/chat/completions");
+        log.info("    messages: system + user");
 
         var response = webTestClient
                 .post()
-                .uri("/api/claude/prompt/async")
+                .uri("/v1/chat/completions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(request)
                 .exchange()
@@ -176,62 +237,36 @@ class ClaudeRestE2ETest {
         log.info("  Response received: {}", response);
 
         assertThat(response).isNotNull();
-        assertThat(response).contains("\"success\":true");
-        assertThat(response).containsIgnoringCase("Paris");
+        assertThat(response).containsIgnoringCase("6");
 
-        log.info("  PASSED: Real Claude CLI async invocation successful via REST");
+        log.info("  PASSED: Real chat with system message handled correctly");
     }
 
     @Test
-    void shouldReturnRealHealthStatus() {
-        log.info("TEST: shouldReturnRealHealthStatus");
-        log.info("  Checking real health endpoint...");
+    void shouldExecuteRealChatWithTemperature() {
+        log.info("TEST: shouldExecuteRealChatWithTemperature");
+        log.info("  Sending real chat with temperature parameter...");
 
-        var response = webTestClient
-                .get()
-                .uri("/api/claude/health")
-                .exchange()
-                .expectStatus()
-                .isOk()
-                .expectBody(String.class)
-                .returnResult()
-                .getResponseBody();
-
-        log.info("  Response received: {}", response);
-
-        assertThat(response).isNotNull();
-        assertThat(response).contains("\"available\":true");
-        assertThat(response).contains("\"version\":");
-        assertThat(response).doesNotContain("\"version\":\"unknown\"");
-
-        log.info("  PASSED: Health endpoint returns real CLI status");
-    }
-
-    @Test
-    void shouldHandleComplexPrompt() {
-        log.info("TEST: shouldHandleComplexPrompt");
-        log.info("  Sending complex prompt with system instructions...");
-
-        var request = new PromptRequest(
-                "List 3 prime numbers less than 10, comma separated.",
-                "You are a math assistant. Be concise.",
-                null,
-                null,
-                null,
-                90L,
-                "TEXT",
+        var request = new ChatCompletionRequest(
+                List.of(new ChatMessage("user", "Say hello", null, null, null)),
                 "haiku",
-                true, // dangerouslySkipPermissions - REQUIRED for non-interactive
-                true,
-                null); // no maxTurns limit
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                false,
+                0.5,
+                null,
+                null);
 
-        log.info("  Request: POST /api/claude/prompt");
-        log.info("    text: 'List 3 prime numbers less than 10, comma separated.'");
-        log.info("    systemPrompt: 'You are a math assistant. Be concise.'");
+        log.info("  Request: POST /v1/chat/completions");
+        log.info("    temperature: 0.5");
 
         var response = webTestClient
                 .post()
-                .uri("/api/claude/prompt")
+                .uri("/v1/chat/completions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(request)
                 .exchange()
@@ -244,10 +279,8 @@ class ClaudeRestE2ETest {
         log.info("  Response received: {}", response);
 
         assertThat(response).isNotNull();
-        assertThat(response).contains("\"success\":true");
-        // Should contain at least one prime number
-        assertThat(response).containsAnyOf("2", "3", "5", "7");
+        assertThat(response).contains("\"object\":\"chat.completion\"");
 
-        log.info("  PASSED: Complex prompt with system instructions handled correctly");
+        log.info("  PASSED: Real chat with temperature parameter handled correctly");
     }
 }

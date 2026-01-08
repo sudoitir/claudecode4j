@@ -1,4 +1,4 @@
-module ir.sudoit.claudecode4j.rest {
+open module ir.sudoit.claudecode4j.rest {
     requires ir.sudoit.claudecode4j.api;
     requires ir.sudoit.claudecode4j.spring;
     requires spring.boot;
@@ -9,28 +9,26 @@ module ir.sudoit.claudecode4j.rest {
     requires spring.web;
     requires spring.webmvc;
     requires jakarta.validation;
+    requires tools.jackson.databind;
+    requires org.hibernate.validator;
+    requires com.fasterxml.jackson.annotation;
     requires static org.jspecify;
 
     exports ir.sudoit.claudecode4j.rest.controller;
     exports ir.sudoit.claudecode4j.rest.dto;
     exports ir.sudoit.claudecode4j.rest.autoconfigure;
     exports ir.sudoit.claudecode4j.rest.sse;
-
-    opens ir.sudoit.claudecode4j.rest.sse to
-            spring.core,
-            spring.beans,
-            spring.context;
-    opens ir.sudoit.claudecode4j.rest.controller to
-            spring.core,
-            spring.beans,
-            spring.context,
-            spring.web;
-    opens ir.sudoit.claudecode4j.rest.dto to
-            spring.core,
-            spring.beans,
-            com.fasterxml.jackson.databind;
-    opens ir.sudoit.claudecode4j.rest.autoconfigure to
-            spring.core,
-            spring.beans,
-            spring.context;
+    exports ir.sudoit.claudecode4j.rest.openai.controller;
+    exports ir.sudoit.claudecode4j.rest.openai.dto.request;
+    exports ir.sudoit.claudecode4j.rest.openai.dto.response;
+    exports ir.sudoit.claudecode4j.rest.openai.mapper;
+    exports ir.sudoit.claudecode4j.rest.openai.sse;
+    exports ir.sudoit.claudecode4j.rest.anthropic.controller;
+    exports ir.sudoit.claudecode4j.rest.anthropic.dto.request;
+    exports ir.sudoit.claudecode4j.rest.anthropic.dto.response;
+    exports ir.sudoit.claudecode4j.rest.anthropic.mapper;
+    exports ir.sudoit.claudecode4j.rest.anthropic.sse;
+    exports ir.sudoit.claudecode4j.rest.common.dto;
+    exports ir.sudoit.claudecode4j.rest.common.streaming;
+    exports ir.sudoit.claudecode4j.rest.config;
 }
