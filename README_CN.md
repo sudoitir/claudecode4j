@@ -48,7 +48,7 @@ A modern Java library for integrating with...
 <dependencyManagement>
     <dependencies>
         <dependency>
-            <groupId>ir.sudoit</groupId>
+            <groupId>io.github.sudoitir</groupId>
             <artifactId>claudecode4j-bom</artifactId>
             <version>1.0.0-SNAPSHOT</version>
             <type>pom</type>
@@ -63,7 +63,7 @@ A modern Java library for integrating with...
 
 ```xml
 <dependency>
-    <groupId>ir.sudoit</groupId>
+    <groupId>io.github.sudoitir</groupId>
     <artifactId>claudecode4j-core</artifactId>
 </dependency>
 
@@ -73,7 +73,7 @@ A modern Java library for integrating with...
 
 ```xml
 <dependency>
-    <groupId>ir.sudoit</groupId>
+    <groupId>io.github.sudoitir</groupId>
     <artifactId>claudecode4j-spring-boot-starter</artifactId>
 </dependency>
 
@@ -83,7 +83,7 @@ A modern Java library for integrating with...
 
 ```xml
 <dependency>
-    <groupId>ir.sudoit</groupId>
+    <groupId>io.github.sudoitir</groupId>
     <artifactId>claudecode4j-rest-adapter</artifactId>
 </dependency>
 
@@ -93,7 +93,7 @@ A modern Java library for integrating with...
 
 ```xml
 <dependency>
-    <groupId>ir.sudoit</groupId>
+    <groupId>io.github.sudoitir</groupId>
     <artifactId>claudecode4j-kafka-adapter</artifactId>
 </dependency>
 

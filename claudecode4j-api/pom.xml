@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>ir.sudoit</groupId>
+    <groupId>io.github.sudoitir</groupId>
     <artifactId>claudecode4j-parent</artifactId>
     <version>${revision}</version>
   </parent>
@@ -19,12 +19,4 @@
     </dependency>
   </dependencies>
 
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-      </plugin>
-    </plugins>
-  </build>
 </project>

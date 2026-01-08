@@ -32,7 +32,7 @@
 <dependencyManagement>
     <dependencies>
         <dependency>
-            <groupId>ir.sudoit</groupId>
+            <groupId>io.github.sudoitir</groupId>
             <artifactId>claudecode4j-bom</artifactId>
             <version>1.0.0-SNAPSHOT</version>
             <type>pom</type>
@@ -51,7 +51,7 @@
 
 ```xml
 <dependency>
-    <groupId>ir.sudoit</groupId>
+    <groupId>io.github.sudoitir</groupId>
     <artifactId>claudecode4j-core</artifactId>
 </dependency>
 
@@ -65,7 +65,7 @@
 
 ```xml
 <dependency>
-    <groupId>ir.sudoit</groupId>
+    <groupId>io.github.sudoitir</groupId>
     <artifactId>claudecode4j-spring-boot-starter</artifactId>
 </dependency>
 
@@ -79,7 +79,7 @@
 
 ```xml
 <dependency>
-    <groupId>ir.sudoit</groupId>
+    <groupId>io.github.sudoitir</groupId>
     <artifactId>claudecode4j-rest-adapter</artifactId>
 </dependency>
 
@@ -93,7 +93,7 @@
 
 ```xml
 <dependency>
-    <groupId>ir.sudoit</groupId>
+    <groupId>io.github.sudoitir</groupId>
     <artifactId>claudecode4j-kafka-adapter</artifactId>
 </dependency>
 

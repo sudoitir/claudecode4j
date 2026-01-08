@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>ir.sudoit</groupId>
+  <groupId>io.github.sudoitir</groupId>
   <artifactId>claudecode4j-bom</artifactId>
   <version>${revision}</version>
   <packaging>pom</packaging>
@@ -40,42 +40,42 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>ir.sudoit</groupId>
+        <groupId>io.github.sudoitir</groupId>
         <artifactId>claudecode4j-api</artifactId>
         <version>${revision}</version>
       </dependency>
       <dependency>
-        <groupId>ir.sudoit</groupId>
+        <groupId>io.github.sudoitir</groupId>
         <artifactId>claudecode4j-core</artifactId>
         <version>${revision}</version>
       </dependency>
       <dependency>
-        <groupId>ir.sudoit</groupId>
+        <groupId>io.github.sudoitir</groupId>
         <artifactId>claudecode4j-spring-boot-starter</artifactId>
         <version>${revision}</version>
       </dependency>
       <dependency>
-        <groupId>ir.sudoit</groupId>
+        <groupId>io.github.sudoitir</groupId>
         <artifactId>claudecode4j-rest-adapter</artifactId>
         <version>${revision}</version>
       </dependency>
       <dependency>
-        <groupId>ir.sudoit</groupId>
+        <groupId>io.github.sudoitir</groupId>
         <artifactId>claudecode4j-kafka-adapter</artifactId>
         <version>${revision}</version>
       </dependency>
       <dependency>
-        <groupId>ir.sudoit</groupId>
+        <groupId>io.github.sudoitir</groupId>
         <artifactId>claudecode4j-context</artifactId>
         <version>${revision}</version>
       </dependency>
       <dependency>
-        <groupId>ir.sudoit</groupId>
+        <groupId>io.github.sudoitir</groupId>
         <artifactId>claudecode4j-websocket-adapter</artifactId>
         <version>${revision}</version>
       </dependency>
       <dependency>
-        <groupId>ir.sudoit</groupId>
+        <groupId>io.github.sudoitir</groupId>
         <artifactId>claudecode4j-mcp-server</artifactId>
         <version>${revision}</version>
       </dependency>
@@ -109,14 +109,36 @@
           </execution>
         </executions>
       </plugin>
-        <plugin>
-            <groupId>com.diffplug.spotless</groupId>
-            <artifactId>spotless-maven-plugin</artifactId>
-            <version>${spotless.version}</version>
-            <configuration>
-                <skip>true</skip>
-            </configuration>
-        </plugin>
+      <plugin>
+          <groupId>com.diffplug.spotless</groupId>
+          <artifactId>spotless-maven-plugin</artifactId>
+          <version>${spotless.version}</version>
+          <configuration>
+              <skip>true</skip>
+          </configuration>
+      </plugin>
+      <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-gpg-plugin</artifactId>
+      </plugin>
+      <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-deploy-plugin</artifactId>
+          <version>3.1.2</version>
+          <configuration>
+              <skip>true</skip>
+          </configuration>
+      </plugin>
+      <plugin>
+          <groupId>org.sonatype.central</groupId>
+          <artifactId>central-publishing-maven-plugin</artifactId>
+          <version>0.9.0</version>
+          <extensions>true</extensions>
+          <configuration>
+              <publishingServerId>central</publishingServerId>
+              <tokenAuth>true</tokenAuth>
+          </configuration>
+      </plugin>
     </plugins>
   </build>
 </project>

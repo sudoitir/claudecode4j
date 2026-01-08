@@ -15,7 +15,7 @@ Add the dependency to your `pom.xml`:
 
 ```xml
 <dependency>
-    <groupId>ir.sudoit</groupId>
+    <groupId>io.github.sudoitir</groupId>
     <artifactId>claudecode4j-context</artifactId>
 </dependency>
 ```
