@@ -2,3 +2,4 @@ ir.sudoit.claudecode4j.spring.autoconfigure.ClaudeCodeAutoConfiguration
 ir.sudoit.claudecode4j.spring.autoconfigure.ClaudeCodeHealthAutoConfiguration
 ir.sudoit.claudecode4j.spring.autoconfigure.ClaudeCodeMetricsAutoConfiguration
 ir.sudoit.claudecode4j.spring.autoconfigure.ClaudeCodeAopAutoConfiguration
+ir.sudoit.claudecode4j.spring.autoconfigure.ClaudeCodeResilienceAutoConfiguration

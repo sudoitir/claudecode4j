@@ -36,6 +36,10 @@
 - **Spring Boot 4 Integration** - Auto-configuration, health checks, and metrics
 - **REST API Adapter** - HTTP endpoints with SSE streaming support
 - **Kafka Adapter** - Request-reply pattern with correlation IDs
+- **WebSocket Terminal** - Interactive sessions with human-in-the-loop support
+- **MCP Server** - Expose Java methods as Claude tools via Model Context Protocol
+- **Smart Context** - Token-aware context optimization using JTokkit
+- **Resilience** - Built-in retry with exponential backoff
 - **JPMS Ready** - Full Java Platform Module System support
 - **Null-Safe** - JSpecify annotations throughout
 
@@ -96,6 +100,33 @@
 <dependency>
     <groupId>ir.sudoit</groupId>
     <artifactId>claudecode4j-kafka-adapter</artifactId>
+</dependency>
+```
+
+### WebSocket Adapter
+
+```xml
+<dependency>
+    <groupId>ir.sudoit</groupId>
+    <artifactId>claudecode4j-websocket-adapter</artifactId>
+</dependency>
+```
+
+### MCP Server
+
+```xml
+<dependency>
+    <groupId>ir.sudoit</groupId>
+    <artifactId>claudecode4j-mcp-server</artifactId>
+</dependency>
+```
+
+### Context Module (Token Optimization)
+
+```xml
+<dependency>
+    <groupId>ir.sudoit</groupId>
+    <artifactId>claudecode4j-context</artifactId>
 </dependency>
 ```
 

@@ -12,6 +12,7 @@ module ir.sudoit.claudecode4j.spring {
     requires static micrometer.core;
     requires static org.jspecify;
     requires static org.aspectj.weaver;
+    requires static spring.retry;
     requires spring.boot.health;
 
     exports ir.sudoit.claudecode4j.spring.autoconfigure;
@@ -19,6 +20,7 @@ module ir.sudoit.claudecode4j.spring {
     exports ir.sudoit.claudecode4j.spring.health;
     exports ir.sudoit.claudecode4j.spring.metrics;
     exports ir.sudoit.claudecode4j.spring.aop;
+    exports ir.sudoit.claudecode4j.spring.resilience;
 
     opens ir.sudoit.claudecode4j.spring.autoconfigure to
             spring.core,
@@ -41,4 +43,8 @@ module ir.sudoit.claudecode4j.spring {
             spring.beans,
             spring.context,
             spring.aop;
+    opens ir.sudoit.claudecode4j.spring.resilience to
+            spring.core,
+            spring.beans,
+            spring.context;
 }

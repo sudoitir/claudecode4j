@@ -39,7 +39,8 @@ public record ClaudeCodeProperties(
         @DefaultValue("true") boolean enabled,
         @Nullable Health health,
         @Nullable Metrics metrics,
-        @Nullable Mock mock) {
+        @Nullable Mock mock,
+        @Nullable Resilience resilience) {
     public record Health(
             @DefaultValue("true") boolean enabled,
             @DefaultValue("10s") Duration timeout,
@@ -53,6 +54,13 @@ public record ClaudeCodeProperties(
             @DefaultValue("false") boolean enabled,
             @Nullable String response,
             @Nullable Duration delay) {}
+
+    public record Resilience(
+            @DefaultValue("false") boolean enabled,
+            @DefaultValue("3") int maxRetries,
+            @DefaultValue("1s") Duration initialDelay,
+            @DefaultValue("2.0") double multiplier,
+            @DefaultValue("30s") Duration maxDelay) {}
 
     public ClaudeConfig toClaudeConfig() {
         return ClaudeConfig.builder()
@@ -89,5 +97,25 @@ public record ClaudeCodeProperties(
 
     public @Nullable Duration getMockDelay() {
         return mock != null ? mock.delay() : null;
+    }
+
+    public boolean isResilienceEnabled() {
+        return resilience != null && resilience.enabled();
+    }
+
+    public int getResilienceMaxRetries() {
+        return resilience != null ? resilience.maxRetries() : 3;
+    }
+
+    public Duration getResilienceInitialDelay() {
+        return resilience != null ? resilience.initialDelay() : Duration.ofSeconds(1);
+    }
+
+    public double getResilienceMultiplier() {
+        return resilience != null ? resilience.multiplier() : 2.0;
+    }
+
+    public Duration getResilienceMaxDelay() {
+        return resilience != null ? resilience.maxDelay() : Duration.ofSeconds(30);
     }
 }

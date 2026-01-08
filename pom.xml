@@ -14,9 +14,12 @@
     <module>claudecode4j-bom</module>
     <module>claudecode4j-api</module>
     <module>claudecode4j-core</module>
+    <module>claudecode4j-context</module>
     <module>claudecode4j-spring-boot-starter</module>
     <module>claudecode4j-rest-adapter</module>
     <module>claudecode4j-kafka-adapter</module>
+    <module>claudecode4j-websocket-adapter</module>
+    <module>claudecode4j-mcp-server</module>
   </modules>
 
   <properties>
@@ -29,6 +32,8 @@
 
     <jspecify.version>1.0.0</jspecify.version>
     <spring-boot.version>4.0.1</spring-boot.version>
+    <jtokkit.version>1.1.0</jtokkit.version>
+    <spring-ai.version>1.0.0-M6</spring-ai.version>
     <testcontainers.version>1.20.4</testcontainers.version>
     <flatten-maven-plugin.version>1.6.0</flatten-maven-plugin.version>
     <maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
@@ -77,6 +82,32 @@
         <groupId>ir.sudoit</groupId>
         <artifactId>claudecode4j-kafka-adapter</artifactId>
         <version>${revision}</version>
+      </dependency>
+      <dependency>
+        <groupId>ir.sudoit</groupId>
+        <artifactId>claudecode4j-context</artifactId>
+        <version>${revision}</version>
+      </dependency>
+      <dependency>
+        <groupId>ir.sudoit</groupId>
+        <artifactId>claudecode4j-websocket-adapter</artifactId>
+        <version>${revision}</version>
+      </dependency>
+      <dependency>
+        <groupId>ir.sudoit</groupId>
+        <artifactId>claudecode4j-mcp-server</artifactId>
+        <version>${revision}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.knuddels</groupId>
+        <artifactId>jtokkit</artifactId>
+        <version>${jtokkit.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.retry</groupId>
+        <artifactId>spring-retry</artifactId>
+        <version>2.0.11</version>
       </dependency>
 
       <dependency>

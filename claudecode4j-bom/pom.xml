@@ -42,6 +42,21 @@
         <artifactId>claudecode4j-kafka-adapter</artifactId>
         <version>${revision}</version>
       </dependency>
+      <dependency>
+        <groupId>ir.sudoit</groupId>
+        <artifactId>claudecode4j-context</artifactId>
+        <version>${revision}</version>
+      </dependency>
+      <dependency>
+        <groupId>ir.sudoit</groupId>
+        <artifactId>claudecode4j-websocket-adapter</artifactId>
+        <version>${revision}</version>
+      </dependency>
+      <dependency>
+        <groupId>ir.sudoit</groupId>
+        <artifactId>claudecode4j-mcp-server</artifactId>
+        <version>${revision}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
