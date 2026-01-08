@@ -257,19 +257,19 @@
             <groupId>com.diffplug.spotless</groupId>
             <artifactId>spotless-maven-plugin</artifactId>
             <configuration>
-              <cleanthat>
-                <version>2.8</version>
-                <sourceJdk>${maven.compiler.source}</sourceJdk>
-                <mutators>
-                  <mutator>SafeAndConsensual</mutator>
-                  <mutator>LiteralsFirstInComparisons</mutator>
-                </mutators>
-                <excludedMutators>
-                  <excludedMutator>OptionalNotEmpty</excludedMutator>
-                </excludedMutators>
-                <includeDraft>false</includeDraft>
-              </cleanthat>
               <java>
+                <cleanthat>
+                    <version>2.8</version>
+                    <sourceJdk>${maven.compiler.source}</sourceJdk>
+                    <mutators>
+                        <mutator>SafeAndConsensual</mutator>
+                        <mutator>LiteralsFirstInComparisons</mutator>
+                    </mutators>
+                    <excludedMutators>
+                        <excludedMutator>OptionalNotEmpty</excludedMutator>
+                    </excludedMutators>
+                    <includeDraft>false</includeDraft>
+                </cleanthat>
                 <includes>
                   <include>src/main/java/**/*.java</include>
                   <include>src/test/java/**/*.java</include>
