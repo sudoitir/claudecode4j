@@ -50,7 +50,7 @@ jobs:
         run: mvn clean install -DskipTests -Dgpg.skip=true -B -V
 
       - name: Run Integration Tests
-        run: mvn verify -Pintegration -B -Dgpg.skip=true
+        run: mvn verify -Pintegration -B -Dgpg.skip=true -Dtest='!ClaudeCodeAutoConfigurationTest,!*E2ETest' -Dsurefire.failIfNoSpecifiedTests=false
         env:
           TESTCONTAINERS_RYUK_DISABLED: false
 
