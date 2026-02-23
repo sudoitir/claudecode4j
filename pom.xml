@@ -60,10 +60,10 @@
     <spring-ai.version>1.0.0-M6</spring-ai.version>
     <testcontainers.version>2.0.3</testcontainers.version>
     <flatten-maven-plugin.version>1.7.3</flatten-maven-plugin.version>
-    <maven-surefire-plugin.version>3.5.4</maven-surefire-plugin.version>
+    <maven-surefire-plugin.version>3.5.5</maven-surefire-plugin.version>
     <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
-    <maven-compiler-plugin.version>3.14.1</maven-compiler-plugin.version>
-    <spotless.version>3.1.0</spotless.version>
+    <maven-compiler-plugin.version>3.15.0</maven-compiler-plugin.version>
+    <spotless.version>3.2.1</spotless.version>
   </properties>
 
   <dependencyManagement>
@@ -198,7 +198,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-failsafe-plugin</artifactId>
-          <version>3.5.4</version>
+          <version>3.5.5</version>
           <configuration>
             <argLine>--enable-preview</argLine>
             <includes>
@@ -277,7 +277,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-deploy-plugin</artifactId>
-        <version>3.1.2</version>
+        <version>3.1.4</version>
         <configuration>
           <skip>true</skip>
         </configuration>
@@ -395,7 +395,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-source-plugin</artifactId>
-            <version>3.3.0</version>
+            <version>3.4.0</version>
             <executions>
               <execution>
                 <id>attach-sources</id>
@@ -408,7 +408,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
-            <version>3.6.3</version>
+            <version>3.12.0</version>
             <configuration>
               <additionalOptions>--enable-preview</additionalOptions>
               <release>${java.version}</release>
