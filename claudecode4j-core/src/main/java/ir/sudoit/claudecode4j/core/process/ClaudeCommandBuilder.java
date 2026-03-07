@@ -87,6 +87,11 @@ public final class ClaudeCommandBuilder {
                 command.add("--dangerously-skip-permissions");
             }
 
+            if (options.permissionMode() != null) {
+                command.add("--permission-mode");
+                command.add(options.permissionMode().cliValue());
+            }
+
             if (options.outputFormat() != null) {
                 command.add("--output-format");
                 command.add(options.outputFormat().cliValue());
@@ -166,6 +171,11 @@ public final class ClaudeCommandBuilder {
 
             if (options.dangerouslySkipPermissions()) {
                 command.add("--dangerously-skip-permissions");
+            }
+
+            if (options.permissionMode() != null) {
+                command.add("--permission-mode");
+                command.add(options.permissionMode().cliValue());
             }
 
             if (options.outputFormat() != null) {
