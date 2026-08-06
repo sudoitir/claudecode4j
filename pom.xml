@@ -55,7 +55,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <jspecify.version>1.0.0</jspecify.version>
-    <spring-boot.version>4.0.1</spring-boot.version>
+    <spring-boot.version>4.0.2</spring-boot.version>
     <jtokkit.version>1.1.0</jtokkit.version>
     <spring-ai.version>1.0.0-M6</spring-ai.version>
     <testcontainers.version>2.0.4</testcontainers.version>
@@ -131,7 +131,7 @@
       <dependency>
         <groupId>org.springframework.retry</groupId>
         <artifactId>spring-retry</artifactId>
-        <version>2.0.11</version>
+        <version>2.0.12</version>
       </dependency>
 
       <dependency>
