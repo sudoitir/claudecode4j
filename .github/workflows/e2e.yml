@@ -63,7 +63,7 @@ jobs:
           fi
 
       - name: Upload E2E Test Results
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: e2e-test-results

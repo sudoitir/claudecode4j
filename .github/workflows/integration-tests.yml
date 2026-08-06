@@ -55,7 +55,7 @@ jobs:
           TESTCONTAINERS_RYUK_DISABLED: false
 
       - name: Upload Integration Test Results
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: integration-test-results
@@ -97,7 +97,7 @@ jobs:
           TESTCONTAINERS_RYUK_DISABLED: false
 
       - name: Upload Kafka Test Results
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: kafka-test-results
