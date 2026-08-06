@@ -33,6 +33,7 @@ public record PromptOptions(
         OutputFormat outputFormat,
         @Nullable String model,
         boolean dangerouslySkipPermissions,
+        @Nullable PermissionMode permissionMode,
         boolean printMode,
         @Nullable Integer maxTurns,
         List<String> allowedTools,
@@ -47,7 +48,7 @@ public record PromptOptions(
 
     public static PromptOptions defaults() {
         return new PromptOptions(
-                DEFAULT_TIMEOUT, OutputFormat.STREAM_JSON, null, false, false, null, List.of(), List.of());
+                DEFAULT_TIMEOUT, OutputFormat.STREAM_JSON, null, false, null, false, null, List.of(), List.of());
     }
 
     public static Builder builder() {
@@ -59,6 +60,7 @@ public record PromptOptions(
         private OutputFormat outputFormat = OutputFormat.STREAM_JSON;
         private @Nullable String model;
         private boolean dangerouslySkipPermissions;
+        private @Nullable PermissionMode permissionMode;
         private boolean printMode;
         private @Nullable Integer maxTurns;
         private List<String> allowedTools = List.of();
@@ -83,6 +85,11 @@ public record PromptOptions(
 
         public Builder dangerouslySkipPermissions(boolean skip) {
             this.dangerouslySkipPermissions = skip;
+            return this;
+        }
+
+        public Builder permissionMode(@Nullable PermissionMode permissionMode) {
+            this.permissionMode = permissionMode;
             return this;
         }
 
@@ -122,6 +129,7 @@ public record PromptOptions(
                     outputFormat,
                     model,
                     dangerouslySkipPermissions,
+                    permissionMode,
                     printMode,
                     maxTurns,
                     allowedTools,

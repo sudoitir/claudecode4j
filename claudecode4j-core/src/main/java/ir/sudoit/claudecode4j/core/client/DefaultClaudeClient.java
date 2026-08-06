@@ -228,6 +228,7 @@ public final class DefaultClaudeClient implements ClaudeClient {
                     .outputFormat(options.outputFormat())
                     .model(options.model())
                     .dangerouslySkipPermissions(true)
+                    .permissionMode(options.permissionMode())
                     .printMode(options.printMode())
                     .maxTurns(options.maxTurns())
                     .allowedTools(options.allowedTools())

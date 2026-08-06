@@ -26,6 +26,7 @@ package ir.sudoit.claudecode4j.core.process;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import ir.sudoit.claudecode4j.api.model.request.OutputFormat;
+import ir.sudoit.claudecode4j.api.model.request.PermissionMode;
 import ir.sudoit.claudecode4j.api.model.request.Prompt;
 import ir.sudoit.claudecode4j.api.model.request.PromptOptions;
 import java.nio.file.Path;
@@ -173,6 +174,79 @@ class ClaudeCommandBuilderTest {
                     .containsSequence("--allowedTools", "Read")
                     .containsSequence("--allowedTools", "Write")
                     .containsSequence("--allowedTools", "Edit");
+        }
+
+        @Test
+        @DisplayName("should build command with permission mode default")
+        void shouldBuildCommandWithPermissionModeDefault() {
+            var options = PromptOptions.builder()
+                    .permissionMode(PermissionMode.DEFAULT)
+                    .build();
+            var command = builder.options(options).build();
+
+            assertThat(command).containsSequence("--permission-mode", "default");
+        }
+
+        @Test
+        @DisplayName("should build command with permission mode acceptEdits")
+        void shouldBuildCommandWithPermissionModeAcceptEdits() {
+            var options = PromptOptions.builder()
+                    .permissionMode(PermissionMode.ACCEPT_EDITS)
+                    .build();
+            var command = builder.options(options).build();
+
+            assertThat(command).containsSequence("--permission-mode", "acceptEdits");
+        }
+
+        @Test
+        @DisplayName("should build command with permission mode bypassPermissions")
+        void shouldBuildCommandWithPermissionModeBypassPermissions() {
+            var options = PromptOptions.builder()
+                    .permissionMode(PermissionMode.BYPASS_PERMISSIONS)
+                    .build();
+            var command = builder.options(options).build();
+
+            assertThat(command).containsSequence("--permission-mode", "bypassPermissions");
+        }
+
+        @Test
+        @DisplayName("should build command with permission mode dontAsk")
+        void shouldBuildCommandWithPermissionModeDontAsk() {
+            var options = PromptOptions.builder()
+                    .permissionMode(PermissionMode.DONT_ASK)
+                    .build();
+            var command = builder.options(options).build();
+
+            assertThat(command).containsSequence("--permission-mode", "dontAsk");
+        }
+
+        @Test
+        @DisplayName("should build command with permission mode plan")
+        void shouldBuildCommandWithPermissionModePlan() {
+            var options =
+                    PromptOptions.builder().permissionMode(PermissionMode.PLAN).build();
+            var command = builder.options(options).build();
+
+            assertThat(command).containsSequence("--permission-mode", "plan");
+        }
+
+        @Test
+        @DisplayName("should build command with permission mode auto")
+        void shouldBuildCommandWithPermissionModeAuto() {
+            var options =
+                    PromptOptions.builder().permissionMode(PermissionMode.AUTO).build();
+            var command = builder.options(options).build();
+
+            assertThat(command).containsSequence("--permission-mode", "auto");
+        }
+
+        @Test
+        @DisplayName("should not include permission mode when null")
+        void shouldNotIncludePermissionModeWhenNull() {
+            var options = PromptOptions.builder().build();
+            var command = builder.options(options).build();
+
+            assertThat(command).doesNotContain("--permission-mode");
         }
 
         @Test
