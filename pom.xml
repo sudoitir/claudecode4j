@@ -59,11 +59,11 @@
     <jtokkit.version>1.1.0</jtokkit.version>
     <spring-ai.version>2.0.0</spring-ai.version>
     <testcontainers.version>2.0.4</testcontainers.version>
-    <flatten-maven-plugin.version>1.7.3</flatten-maven-plugin.version>
-    <maven-surefire-plugin.version>3.5.5</maven-surefire-plugin.version>
+    <flatten-maven-plugin.version>1.8.0</flatten-maven-plugin.version>
+    <maven-surefire-plugin.version>3.5.6</maven-surefire-plugin.version>
     <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
     <maven-compiler-plugin.version>3.15.0</maven-compiler-plugin.version>
-    <spotless.version>3.2.1</spotless.version>
+    <spotless.version>3.9.0</spotless.version>
   </properties>
 
   <dependencyManagement>
@@ -198,7 +198,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-failsafe-plugin</artifactId>
-          <version>3.5.5</version>
+          <version>3.5.6</version>
           <configuration>
             <argLine>--enable-preview</argLine>
             <includes>
